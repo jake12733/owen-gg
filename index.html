@@ -406,6 +406,45 @@ footer{border-top:1px solid var(--line);padding:26px 20px;text-align:center;colo
 .cf-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;background:rgba(10,200,185,.08);border:1px solid rgba(10,200,185,.25);font-size:13px}
 .cf-bar img{width:26px;height:26px;border-radius:50%}
 .cf-bar button{margin-left:auto;font-size:12px;font-weight:700;color:var(--teal)}
+
+/* auth */
+.auth-box{display:flex;align-items:center;gap:6px;flex:none}
+.auth-box .btn{height:34px;padding:0 13px;font-size:12.5px}
+.ubtn{display:flex;align-items:center;gap:8px;height:38px;padding:0 10px 0 4px;border-radius:20px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);font-weight:700;font-size:13px;max-width:180px}
+.ubtn:hover{background:rgba(255,255,255,.1)}
+.ubtn span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.uav{width:30px;height:30px;border-radius:50%;object-fit:cover;flex:none;background:linear-gradient(135deg,#f0d28c,#0ac8b9);color:#08101a;display:grid;place-items:center;font-weight:900;font-size:13px}
+.umenu{position:fixed;z-index:90;min-width:200px;background:var(--bg2);border:1px solid var(--line2);border-radius:14px;padding:6px;box-shadow:0 20px 50px rgba(0,0,0,.5);animation:rise .15s}
+.umenu .uh{padding:10px 12px 8px;border-bottom:1px solid var(--line);margin-bottom:4px}
+.umenu .uh b{display:block;font-size:14px}.umenu .uh small{color:var(--mute);font-size:11.5px}
+.umenu button,.umenu a{display:flex;width:100%;align-items:center;gap:8px;padding:9px 12px;border-radius:9px;font-size:13px;font-weight:600;color:var(--sub);text-align:left}
+.umenu button:hover,.umenu a:hover{background:rgba(255,255,255,.06);color:var(--text)}
+.auth{display:flex;flex-direction:column;gap:12px}
+.auth .lead{color:var(--sub);font-size:13px;line-height:1.6;margin-bottom:2px}
+.soc{display:flex;flex-direction:column;gap:8px}
+.sbtn{display:flex;align-items:center;justify-content:center;gap:10px;height:48px;border-radius:12px;font-weight:800;font-size:14.5px;position:relative;transition:filter .15s,transform .1s}
+.sbtn:hover{filter:brightness(1.05)}.sbtn:active{transform:scale(.99)}
+.sbtn svg{width:20px;height:20px;position:absolute;left:18px}
+.sbtn.kakao{background:#FEE500;color:#191600}
+.sbtn.naver{background:#03C75A;color:#fff}
+.sbtn.google{background:#fff;color:#1f1f1f}
+.sbtn .soon{position:absolute;right:14px;font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:10px;background:rgba(0,0,0,.15)}
+.or{display:flex;align-items:center;gap:12px;color:var(--mute);font-size:12px;margin:4px 0}
+.or:before,.or:after{content:"";flex:1;height:1px;background:var(--line)}
+.aform{display:flex;flex-direction:column;gap:8px}
+.aform input,.me-row input,.me-row select{height:46px;border-radius:11px;background:var(--card);border:1px solid var(--line);padding:0 14px;outline:0;width:100%}
+.aform input:focus,.me-row input:focus{border-color:var(--teal)}
+.aform .btn{height:48px;justify-content:center;font-size:14.5px;margin-top:4px}
+.swap{text-align:center;font-size:13px;color:var(--sub)}
+.swap a{color:var(--teal);font-weight:800;cursor:pointer;margin-left:4px}
+.me-top{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+.me-top .uav{width:56px;height:56px;font-size:22px}
+.me-top b{font-size:18px;display:block}.me-top small{color:var(--mute)}
+.me-sec{border-top:1px solid var(--line);padding-top:14px;margin-top:14px}
+.me-sec h4{font-size:13px;margin-bottom:8px}
+.me-row{display:flex;gap:8px}
+.me-row select{width:110px;flex:none}
+.pv{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:800;padding:3px 9px;border-radius:12px;background:rgba(255,255,255,.07)}
 @media (max-width:980px){
   .form-row{grid-template-columns:1fr 1fr}.form-row>.ftags{grid-column:1/-1}
   .pgrid{grid-template-columns:1fr}
@@ -425,6 +464,9 @@ footer{border-top:1px solid var(--line);padding:26px 20px;text-align:center;colo
   .form-row{grid-template-columns:1fr}
   .kda{width:92px}
   .nav{display:none}
+  .auth-box .btn.ghost{display:none}
+  .ubtn span{display:none}
+  .ubtn{padding:0 4px}
 }
 #key-banner{position:sticky;top:0;z-index:60;padding:10px 18px;text-align:center;font-size:13.5px;line-height:1.5}
 #key-banner.bad{background:linear-gradient(90deg,#3a1218,#4a1a20);color:#ffd6d9;border-bottom:1px solid #a33a45}
@@ -442,6 +484,7 @@ footer{border-top:1px solid var(--line);padding:26px 20px;text-align:center;colo
   <a class="logo" href="#/" aria-label="Owen.gg 홈"><span class="logo-mark" role="img" aria-label="OWEN WEB 로고"></span><b>Owen.gg</b></a>
   <nav class="nav"><a href="#/" data-nav="home">홈</a><a href="#/ranking" data-nav="ranking">랭킹</a></nav>
   <div class="top-search" id="top-search"></div>
+  <div class="auth-box" id="auth-box"></div>
   <button class="icon-btn" id="btn-settings" data-tt="설정" data-tb="Riot API 키 설정"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
 </header>
 <main id="app"></main>
@@ -778,6 +821,7 @@ function renderTopSearch() {
   $('#top-search').innerHTML = searchForm(false) + `<datalist id="recent-dl">${rec.map(r => `<option value="${esc(r.name)}#${esc(r.tag)}">`).join('')}</datalist>`;
 }
 document.addEventListener('submit', e => {
+  if (e.target.id === 'auth-form') { e.preventDefault(); return emailAuth(e.target); }
   const f = e.target.closest('.sform'); if (!f) return; e.preventDefault();
   const pf = f.pf.value; let q = f.q.value.trim(); if (!q) return;
   curPf = pf; LS.set('pf', pf);
@@ -1250,6 +1294,157 @@ function renderError(e, pf, name, tag) {
     <a class="btn gold" href="#/demo/${pf}/${enc(name)}-${enc(tag)}">데모로 보기</a></div></div>`;
 }
 
+/* ================= 회원 (Supabase Auth + DB 연동) ================= */
+const SB_URL = 'https://crrsswrrdpzmdlrgkfoi.supabase.co', SB_KEY = 'sb_publishable_5hZ36ovxuTQqmOQoPfVVug_Ky2MLPwj';
+/* 소셜 로그인: id, 표시 이름, Supabase provider, 사용 가능 여부 */
+const OAUTH = { kakao: ['카카오', 'kakao', false], naver: ['네이버', 'custom:naver', false], google: ['Google', 'google', true] };
+const SOC_ICON = {
+  kakao: '<svg viewBox="0 0 24 24" fill="#191600"><path d="M12 3C6.5 3 2 6.6 2 11c0 2.8 1.9 5.3 4.7 6.7l-1 3.6c-.1.3.3.6.6.4l4.2-2.8c.5.1 1 .1 1.5.1 5.5 0 10-3.6 10-8S17.5 3 12 3z"/></svg>',
+  naver: '<svg viewBox="0 0 24 24" fill="#fff"><path d="M15.6 12.7 8.1 2H2v20h6.4V11.3L15.9 22H22V2h-6.4z"/></svg>',
+  google: '<svg viewBox="0 0 24 24"><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.6v3h3.9c2.2-2.1 3.5-5.1 3.5-8.8z"/><path fill="#34A853" d="M12 24c3.2 0 6-1.1 7.9-2.9l-3.9-3c-1.1.7-2.4 1.2-4 1.2-3.1 0-5.7-2.1-6.6-4.9h-4v3.1C3.4 21.4 7.4 24 12 24z"/><path fill="#FBBC05" d="M5.4 14.4c-.2-.7-.4-1.5-.4-2.4s.1-1.6.4-2.4V6.5h-4C.5 8.2 0 10 0 12s.5 3.8 1.3 5.5l4.1-3.1z"/><path fill="#EA4335" d="M12 4.8c1.8 0 3.3.6 4.6 1.8l3.4-3.4C17.9 1.2 15.2 0 12 0 7.4 0 3.4 2.6 1.3 6.5l4.1 3.1C6.3 6.9 8.9 4.8 12 4.8z"/></svg>',
+};
+/* 소셜 로그인 후 돌아왔는지 (supabase가 주소를 정리하기 전에 미리 기억) */
+const AUTH_BACK = (() => { const q = new URLSearchParams(location.search); return q.has('code') || q.has('error') || q.has('error_description') ? { err: q.get('error_description') } : null; })();
+const PVL = { kakao: '카카오', 'custom:naver': '네이버', naver: '네이버', google: 'Google', email: '이메일' };
+const AUTH = {
+  sb: null, user: null, prof: null, ready: null, timers: {},
+  load() {
+    if (this.ready) return this.ready;
+    this.ready = new Promise((res, rej) => { if (window.supabase?.createClient) return res(); const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js'; s.onload = res; s.onerror = rej; document.head.appendChild(s); })
+      .then(() => {
+        this.sb = window.supabase.createClient(SB_URL, SB_KEY, { auth: { flowType: 'pkce', storageKey: 'owen-gg-auth', persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
+        this.sb.auth.onAuthStateChange((ev, s) => setTimeout(() => this.onChange(s?.user || null, ev), 0));
+        return this.sb.auth.getSession();
+      })
+      .then(({ data }) => { this.cleanUrl(); this.onChange(data?.session?.user || null, 'INIT'); })
+      .catch(() => { this.ready = null; renderAuthBox(); });
+    return this.ready;
+  },
+  cleanUrl() {
+    if (!AUTH_BACK || AUTH_BACK.done) return; AUTH_BACK.done = true;
+    if (AUTH_BACK.err) setTimeout(() => toast('로그인 실패: ' + AUTH_BACK.err), 300);
+    const ret = sessionStorage.getItem('owen-ret') || '#/'; sessionStorage.removeItem('owen-ret');
+    history.replaceState(null, '', location.pathname + ret); route();
+  },
+  async onChange(user, ev) {
+    const prev = this.user?.id; this.user = user;
+    if (!user) { this.prof = null; renderAuthBox(); return; }
+    renderAuthBox();
+    if (prev === user.id && ev !== 'SIGNED_IN' && ev !== 'INIT' && ev !== 'USER_UPDATED') return;
+    if (prev === user.id && ev === 'SIGNED_IN') return;
+    await this.ensureProfile(); renderAuthBox();
+    await this.pull();
+    if (ev === 'SIGNED_IN' && $('#modal .auth')) { closeModal(); toast((this.prof?.nickname || '회원') + '님, 환영해요!'); }
+  },
+  nickOf(u) { const m = u.user_metadata || {}; return (m.nickname || m.name || m.full_name || m.preferred_username || (u.email || '소환사').split('@')[0]).slice(0, 16); },
+  async ensureProfile() {
+    const u = this.user; if (!u) return;
+    let { data } = await this.sb.from('owen_profiles').select('*').eq('id', u.id).maybeSingle();
+    if (!data) { const row = { id: u.id, nickname: this.nickOf(u), avatar_url: u.user_metadata?.avatar_url || u.user_metadata?.picture || null, provider: u.app_metadata?.provider || 'email' }; await this.sb.from('owen_profiles').insert(row); data = row; }
+    this.prof = data;
+  },
+  async pull() {
+    if (!this.user) return;
+    const [f, r] = await Promise.all(['owen_favorites', 'owen_recent'].map(t => this.sb.from(t).select('pf,name,tag,icon,tier,demo,pos').order('pos')));
+    const k = x => x.pf + '|' + x.name + '|' + x.tag, clean = x => ({ pf: x.pf, name: x.name, tag: x.tag, icon: x.icon ?? undefined, tier: x.tier ?? undefined, demo: !!x.demo });
+    const merge = (remote, local, max) => { const seen = new Set(), out = []; for (const x of [...local, ...remote]) { if (seen.has(k(x))) continue; seen.add(k(x)); out.push(clean(x)); } return out.slice(0, max); };
+    const favs = merge(f.data || [], LS.get('favs', []), 12), rec = merge(r.data || [], LS.get('recent', []), 8);
+    LS_SET('favs', favs); LS_SET('recent', rec);
+    this.push('favs', true); this.push('recent', true);
+    if (!location.hash.slice(2)) renderHome();
+  },
+  push(key, now) {
+    if (!this.user) return;
+    clearTimeout(this.timers[key]);
+    this.timers[key] = setTimeout(async () => {
+      const t = key === 'favs' ? 'owen_favorites' : 'owen_recent', uid = this.user?.id; if (!uid) return;
+      const list = LS.get(key, []);
+      await this.sb.from(t).delete().eq('user_id', uid);
+      if (list.length) await this.sb.from(t).insert(list.map((x, i) => ({ user_id: uid, pf: x.pf, name: x.name, tag: x.tag, icon: x.icon ?? null, tier: x.tier ?? null, demo: !!x.demo, pos: i })));
+    }, now ? 0 : 500);
+  },
+  async saveProfile(patch) { if (!this.user) return { error: { message: '로그인이 필요해요.' } }; const r = await this.sb.from('owen_profiles').update({ ...patch, updated_at: new Date().toISOString() }).eq('id', this.user.id).select().maybeSingle(); if (!r.error && r.data) this.prof = r.data; renderAuthBox(); return r; },
+};
+/* 즐겨찾기·최근 검색이 바뀌면 로그인한 계정의 DB에도 저장 */
+const LS_SET = LS.set.bind(LS);
+LS.set = (k, v) => { LS_SET(k, v); if ((k === 'favs' || k === 'recent') && AUTH.user) AUTH.push(k); };
+function avatarHTML(cls = 'uav') { const p = AUTH.prof, u = AUTH.user; const url = p?.avatar_url; const nm = p?.nickname || (u ? AUTH.nickOf(u) : '?'); return url ? `<img class="${cls}" src="${esc(url)}" alt="" referrerpolicy="no-referrer" onerror="this.outerHTML='<span class=&quot;${cls}&quot;>${esc(nm[0] || '?')}</span>'">` : `<span class="${cls}">${esc(nm[0] || '?')}</span>`; }
+function renderAuthBox() {
+  const b = $('#auth-box'); if (!b) return;
+  if (!AUTH.user) { b.innerHTML = '<button class="btn ghost" data-act="login">로그인</button><button class="btn primary" data-act="signup">회원가입</button>'; return; }
+  const nm = AUTH.prof?.nickname || AUTH.nickOf(AUTH.user);
+  b.innerHTML = `<button class="ubtn" data-act="umenu" aria-label="내 계정">${avatarHTML()}<span>${esc(nm)}</span></button>`;
+}
+function openUserMenu(btn) {
+  const old = $('#umenu'); if (old) { old.remove(); return; }
+  const r = btn.getBoundingClientRect(), p = AUTH.prof || {}, u = AUTH.user;
+  const m = document.createElement('div'); m.className = 'umenu'; m.id = 'umenu';
+  m.style.top = (r.bottom + 8) + 'px'; m.style.right = Math.max(8, innerWidth - r.right) + 'px';
+  m.innerHTML = `<div class="uh"><b>${esc(p.nickname || AUTH.nickOf(u))}</b><small>${esc(u.email || PVL[u.app_metadata?.provider] + ' 계정')}</small></div>
+    ${p.main_name ? `<a href="#/summoner/${p.main_pf}/${enc(p.main_name)}-${enc(p.main_tag)}" data-act="umenu-close">내 전적 보기</a>` : ''}
+    <button data-act="me">내 정보 · 롤 계정 연결</button><button data-act="logout">로그아웃</button>`;
+  document.body.appendChild(m);
+}
+function openAuth(mode) {
+  const su = mode === 'signup', verb = su ? '시작하기' : '로그인';
+  modal(su ? '회원가입' : '로그인', `<div class="auth">
+    <div class="lead">${su ? 'Owen.gg 회원이 되면 즐겨찾기와 최근 검색이 계정에 저장돼서 어느 기기에서든 이어서 볼 수 있어요.' : '소셜 계정이나 이메일로 로그인하세요.'}</div>
+    <div class="soc">${Object.entries(OAUTH).map(([id, [lab, , on]]) => `<button class="sbtn ${id}" data-oauth="${id}">${SOC_ICON[id]}${lab}로 ${verb}${on ? '' : '<span class="soon">준비 중</span>'}</button>`).join('')}</div>
+    <div class="or">또는 이메일로 ${su ? '가입' : '로그인'}</div>
+    <form class="aform" id="auth-form" data-mode="${mode}" novalidate>
+      ${su ? '<input name="nick" placeholder="닉네임 (2~16자)" maxlength="16" autocomplete="nickname">' : ''}
+      <input name="email" type="email" placeholder="이메일" autocomplete="email">
+      <input name="pw" type="password" placeholder="비밀번호 (6자 이상)" autocomplete="${su ? 'new-password' : 'current-password'}">
+      ${su ? '<input name="pw2" type="password" placeholder="비밀번호 확인" autocomplete="new-password">' : ''}
+      <button class="btn primary" type="submit">${su ? '이메일로 회원가입' : '로그인'}</button>
+      <div class="msg" id="auth-msg"></div>
+    </form>
+    <div class="swap">${su ? '이미 계정이 있나요?<a data-act="login">로그인</a>' : '아직 회원이 아니신가요?<a data-act="signup">회원가입</a>'}</div></div>`);
+  AUTH.load();
+}
+const authErr = m => /already registered|already been registered/i.test(m) ? '이미 가입된 이메일이에요. 로그인해 주세요.' : /Invalid login credentials/i.test(m) ? '이메일 또는 비밀번호가 맞지 않아요.' : /Email not confirmed/i.test(m) ? '이메일 인증을 먼저 완료해 주세요.' : /Password should be/i.test(m) ? '비밀번호는 6자 이상이어야 해요.' : /provider is not enabled|Unsupported provider/i.test(m) ? '이 로그인 방식은 아직 준비 중이에요.' : /rate limit/i.test(m) ? '요청이 너무 많아요. 잠시 후 다시 시도해 주세요.' : m;
+async function oauthLogin(id) {
+  const [lab, prov, on] = OAUTH[id];
+  if (!on) return toast(lab + ' 로그인은 곧 열려요. 지금은 Google 또는 이메일로 이용해 주세요.');
+  sessionStorage.setItem('owen-ret', location.hash || '#/');
+  try { await AUTH.load(); const { error } = await AUTH.sb.auth.signInWithOAuth({ provider: prov, options: { redirectTo: location.origin + location.pathname } }); if (error) toast(authErr(error.message)); }
+  catch { toast('로그인 모듈을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'); }
+}
+async function emailAuth(f) {
+  const su = f.dataset.mode === 'signup', msg = $('#auth-msg'), v = n => (f[n]?.value || '').trim();
+  const bad = t => { msg.className = 'msg bad'; msg.textContent = t; };
+  if (su && (v('nick').length < 2)) return bad('닉네임을 2자 이상 입력해 주세요.');
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v('email'))) return bad('올바른 이메일을 입력해 주세요.');
+  if (v('pw').length < 6) return bad('비밀번호는 6자 이상이어야 해요.');
+  if (su && v('pw') !== v('pw2')) return bad('비밀번호 확인이 일치하지 않아요.');
+  const btn = f.querySelector('button[type=submit]'); btn.disabled = true; msg.className = 'msg'; msg.textContent = su ? '가입하는 중…' : '로그인하는 중…';
+  try {
+    await AUTH.load();
+    const r = su ? await AUTH.sb.auth.signUp({ email: v('email'), password: v('pw'), options: { data: { nickname: v('nick') }, emailRedirectTo: location.origin + location.pathname } })
+      : await AUTH.sb.auth.signInWithPassword({ email: v('email'), password: v('pw') });
+    if (r.error) return bad(authErr(r.error.message));
+    if (su && !r.data.session) { msg.className = 'msg ok'; msg.textContent = '가입 완료! 이메일로 받은 인증 링크를 눌러 주세요.'; }
+  } catch { bad('서버에 연결하지 못했어요. 잠시 후 다시 시도해 주세요.'); }
+  finally { btn.disabled = false; }
+}
+function openMe() {
+  if (!AUTH.user) return openAuth('login');
+  const p = AUTH.prof || {}, u = AUTH.user, prov = u.app_metadata?.provider || 'email';
+  const cur = P.data && location.hash.startsWith('#/summoner/') ? P.data.account : null;
+  modal('내 정보', `<div class="me-top">${avatarHTML()}<div><b>${esc(p.nickname || AUTH.nickOf(u))}</b><small>${esc(u.email || '')} <span class="pv">${PVL[prov] || prov} 로그인</span></small></div></div>
+    <div class="me-sec"><h4>닉네임</h4><div class="me-row"><input id="me-nick" maxlength="16" value="${esc(p.nickname || '')}"><button class="btn" data-act="me-nick">저장</button></div></div>
+    <div class="me-sec"><h4>내 롤 계정 연결</h4><div class="sub" style="font-size:12.5px;margin-bottom:8px">연결하면 메뉴에서 바로 내 전적으로 이동할 수 있어요.</div>
+      <div class="me-row"><select id="me-pf">${PLATFORMS.map(x => `<option value="${x[0]}"${x[0] === (p.main_pf || curPf) ? ' selected' : ''}>${x[1]}</option>`).join('')}</select><input id="me-riot" placeholder="이름#태그" value="${p.main_name ? esc(p.main_name + '#' + p.main_tag) : ''}"><button class="btn" data-act="me-riot">저장</button></div>
+      ${cur ? `<button class="btn" style="margin-top:8px" data-act="me-cur">지금 보는 ${esc(cur.gameName)}#${esc(cur.tagLine)} 로 연결</button>` : ''}</div>
+    <div class="me-sec"><h4>저장된 데이터</h4><div class="sub" style="font-size:12.5px">즐겨찾기 ${LS.get('favs', []).length}개 · 최근 검색 ${LS.get('recent', []).length}개가 계정에 동기화돼요.</div></div>
+    <div class="msg" id="me-msg"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:16px"><button class="btn" data-act="logout">로그아웃</button></div>`);
+}
+async function saveMain(pf, name, tag) {
+  const m = $('#me-msg'); const r = await AUTH.saveProfile({ main_pf: pf, main_name: name, main_tag: tag });
+  if (m) { m.className = 'msg ' + (r.error ? 'bad' : 'ok'); m.textContent = r.error ? '저장 실패: ' + r.error.message : `${name}#${tag} 계정을 연결했어요.`; }
+}
+
 /* ================= events ================= */
 document.addEventListener('click', async e => {
   const t = e.target;
@@ -1290,6 +1485,16 @@ document.addEventListener('click', async e => {
   if (act === 'share') { const u = location.href; try { await navigator.clipboard.writeText(u); toast('프로필 링크를 복사했어요.'); } catch { toast(u); } return; }
   if (act === 'cf-clear') { P.champ = ''; return applyCF(); }
   const cf = t.closest('#side-champs .row[data-cf]'); if (cf) { P.champ = P.champ === cf.dataset.cf ? '' : cf.dataset.cf; applyCF(); if (P.champ) $('#cf-bar').scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+  if (!t.closest('#umenu') && !t.closest('[data-act="umenu"]')) $('#umenu')?.remove();
+  if (act === 'login' || act === 'signup') { $('#umenu')?.remove(); return openAuth(act); }
+  if (act === 'umenu') return openUserMenu(t.closest('[data-act="umenu"]'));
+  if (act === 'umenu-close') { $('#umenu')?.remove(); return; }
+  if (act === 'me') { $('#umenu')?.remove(); return openMe(); }
+  if (act === 'logout') { $('#umenu')?.remove(); closeModal(); await AUTH.load(); await AUTH.sb.auth.signOut(); toast('로그아웃했어요.'); return; }
+  if (act === 'me-nick') { const v = $('#me-nick').value.trim(); const m = $('#me-msg'); if (v.length < 2) { m.className = 'msg bad'; m.textContent = '닉네임을 2자 이상 입력해 주세요.'; return; } const r = await AUTH.saveProfile({ nickname: v }); m.className = 'msg ' + (r.error ? 'bad' : 'ok'); m.textContent = r.error ? '저장 실패: ' + r.error.message : '닉네임을 저장했어요.'; return; }
+  if (act === 'me-riot') { const q = $('#me-riot').value.trim(), pf = $('#me-pf').value; const i = q.lastIndexOf('#'); const n = i > 0 ? q.slice(0, i).trim() : q, tg = i > 0 ? q.slice(i + 1).trim() : DEFAULT_TAG[pf]; if (!n) { const m = $('#me-msg'); m.className = 'msg bad'; m.textContent = '이름#태그를 입력해 주세요.'; return; } return saveMain(pf, n, tg); }
+  if (act === 'me-cur') { const a = P.data.account; return saveMain(P.pf, a.gameName, a.tagLine); }
+  const oa = t.closest('[data-oauth]'); if (oa) return oauthLogin(oa.dataset.oauth);
   if (act === 'more') return loadMatches(false);
   const qt = t.closest('.qtab');
   if (qt) { $$('.qtab').forEach(x => x.classList.toggle('on', x === qt)); P.queue = qt.dataset.q; P.loading = false; P.token = Symbol(); const tok = P.token; $('#sum-body').innerHTML = '<div class="center"><div class="spin"></div></div>'; P.token = tok; return loadMatches(true); }
@@ -1323,6 +1528,8 @@ document.addEventListener('mousemove', e => { if (!tip.classList.contains('on'))
   try { await (hadSrv ? loadDD() : Promise.all([loadDD(), srv])); }
   catch { app.innerHTML = '<div class="card err"><div class="ic">!</div><h2>게임 데이터를 불러오지 못했어요</h2><p>인터넷 연결을 확인한 뒤 새로고침하세요.</p></div>'; return; }
   route();
+  renderAuthBox();
+  if (AUTH_BACK || localStorage.getItem('owen-gg-auth')) AUTH.load(); else (window.requestIdleCallback || (f => setTimeout(f, 300)))(() => AUTH.load());
   const prevOK = serverOK;
   srv.then(() => { KeyUI.init(); if (hadSrv && serverOK !== prevOK && !location.hash.slice(2)) renderHome(); });
   setTimeout(() => IDB.prune(), 4000);
