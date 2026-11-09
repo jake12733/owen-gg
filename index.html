@@ -219,7 +219,7 @@ img{display:block}
 .pb small{font-size:10px;color:var(--mute)}
 
 /* match */
-.match{display:grid;grid-template-columns:112px 1fr 230px 40px;align-items:stretch;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.05);position:relative;transition:transform .15s,border-color .15s;cursor:pointer;animation:rise .16s both}
+.match{display:grid;grid-template-columns:104px minmax(0,1fr) 78px 206px 36px;align-items:stretch;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.05);position:relative;transition:transform .15s,border-color .15s;cursor:pointer;animation:rise .16s both}
 .match:hover{border-color:rgba(255,255,255,.14)}
 .match.win{background:var(--winbg),var(--card)}
 .match.lose{background:var(--losebg),var(--card)}
@@ -288,6 +288,18 @@ img{display:block}
 .tp .nm:hover{color:var(--teal)}
 .tp .tg{font-size:10.5px;color:var(--mute)}
 .score{display:inline-flex;align-items:center;gap:5px;font-weight:800}
+.m-ai{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:10px 2px;min-width:0}
+.m-ai small{font-size:10.5px;font-weight:800;color:var(--sub);letter-spacing:.2px}
+.m-ai b{min-width:46px;height:34px;border-radius:9px;display:grid;place-items:center;font-size:19px;font-weight:900;color:#fff;font-variant-numeric:tabular-nums;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.m-ai.a1 b{background:linear-gradient(180deg,#ffb84d,#f08a1c);color:#2a1400;box-shadow:0 4px 16px rgba(240,138,28,.35)}
+.m-ai.a2 b{background:linear-gradient(180deg,#2fd2c2,#0a9e93);color:#03201d}
+.m-ai.a3 b{background:linear-gradient(180deg,#5b6b88,#3d4a62)}
+.m-ai.a4 b{background:rgba(255,255,255,.08);color:var(--sub)}
+.m-ai em{font-style:normal;display:flex;align-items:center;gap:3px;font-size:11px;font-weight:900}
+.m-ai em svg{width:13px;height:13px}
+.m-ai em.mvp{color:#f6c35c}.m-ai em.ace{color:#a98bff}.m-ai em.rk{color:var(--mute);font-weight:700}
+.aib{font-style:normal;display:inline-grid;place-items:center;min-width:30px;height:22px;border-radius:6px;font-size:12px;font-weight:900;color:#fff}
+.aib.a1{background:linear-gradient(180deg,#ffb84d,#f08a1c);color:#2a1400}.aib.a2{background:#0a9e93;color:#03201d}.aib.a3{background:#46546f}.aib.a4{background:rgba(255,255,255,.08);color:var(--sub)}
 .score em{font-style:normal;font-size:10px;padding:1px 6px;border-radius:10px;background:rgba(255,255,255,.08);color:var(--sub)}
 .score em.mvp{background:linear-gradient(135deg,#f0d28c,#c8aa6e);color:#2a1f08}
 .score em.ace{background:#7c5cff;color:#fff}
@@ -658,7 +670,7 @@ footer{border-top:1px solid var(--line);padding:26px 20px;text-align:center;colo
   .cgrid{grid-template-columns:1fr}.ms-grid{grid-template-columns:repeat(2,1fr)}.ct .hide-m{display:none}
   .form-row{grid-template-columns:1fr 1fr}.form-row>.ftags{grid-column:1/-1}
   .pgrid{grid-template-columns:1fr}
-  .match{grid-template-columns:92px 1fr 36px}
+  .match{grid-template-columns:92px 1fr 72px 36px}
   .m-players{display:none}
   .sum-grid{grid-template-columns:1fr 1fr}.sum-pos{display:none}
   .top-search{display:none}
@@ -1226,6 +1238,24 @@ function opScores(ps, dur) {
     return Math.max(0, Math.min(10, 1.2 + Math.min(kda, 8) * .55 + kp * 2.4 + ds * 5 + Math.min(cs, 10) * .12 + Math.min(p.visionScore / min, 3) * .35 + (p.win ? .8 : 0) - p.deaths * .05)); });
 }
 
+/* AI-Score (0~100): 같은 게임 10명과 비교한 기여도 종합 점수
+   킬관여·딜 비중·KDA·골드·CS·시야·오브젝트·받은 피해를 상대 비교하고, 데스는 감점, 승리는 가산 */
+function aiScores(ps, dur, tkey) {
+  const min = Math.max(1, dur / 60), T = {};
+  for (const p of ps) { const t = (T[tkey(p)] ||= { k: 0, dmg: 0, tk: 0 }); t.k += p.kills; t.dmg += p.totalDamageDealtToChampions || 0; t.tk += p.totalDamageTaken || 0; }
+  const mx = f => Math.max(1e-6, ...ps.map(f));
+  const cs = p => (p.totalMinionsKilled + p.neutralMinionsKilled) / min, gold = p => (p.goldEarned || 0) / min, vis = p => (p.visionScore || 0) / min;
+  const obj = p => (p.turretKills || 0) * 2 + (p.dragonKills || 0) * 2 + (p.baronKills || 0) * 3 + (p.damageDealtToObjectives || 0) / 4000;
+  const M = { cs: mx(cs), gold: mx(gold), vis: mx(vis), obj: mx(obj), d: mx(p => p.deaths) };
+  return ps.map(p => {
+    const t = T[tkey(p)], kp = (p.kills + p.assists) / Math.max(1, t.k), ds = (p.totalDamageDealtToChampions || 0) / Math.max(1, t.dmg), tk = (p.totalDamageTaken || 0) / Math.max(1, t.tk);
+    const kda = Math.min((p.kills + p.assists) / Math.max(1, p.deaths), 8) / 8, sup = p.teamPosition === 'UTILITY';
+    let r = kda * 20 + Math.min(kp / .7, 1) * 17 + Math.min(ds / .32, 1) * (sup ? 9 : 17) + Math.min(tk / .3, 1) * 6
+      + gold(p) / M.gold * 10 + (sup ? vis(p) / M.vis * 14 : cs(p) / M.cs * 7 + vis(p) / M.vis * 6) + obj(p) / M.obj * 7
+      - p.deaths / M.d * 12 + (p.win ? 12 : 0);
+    return Math.max(1, Math.min(99, Math.round(r * 1.02)));
+  });
+}
 function analyze(m, puuid) {
   const info = m.info, ps = info.participants || [];
   const me = ps.find(p => p.puuid === puuid); if (!me) return null;
@@ -1237,7 +1267,9 @@ function analyze(m, puuid) {
   const sc = opScores(ps, dur);
   ps.forEach((p, i) => p._s = sc[i]);
   const rank = [...ps].sort((a, b) => b._s - a._s); ps.forEach(p => p._r = rank.indexOf(p) + 1);
-  if (!arena) for (const w of [true, false]) { const best = ps.filter(p => p.win === w).sort((a, b) => b._s - a._s)[0]; if (best) best._b = w ? 'MVP' : 'ACE'; }
+  const ai = aiScores(ps, dur, tkey); ps.forEach((p, i) => p._ai = ai[i]);
+  const ar = [...ps].sort((a, b) => b._ai - a._ai); ps.forEach(p => p._ar = ar.indexOf(p) + 1);
+  if (!arena) for (const w of [true, false]) { const best = ps.filter(p => p.win === w).sort((a, b) => b._ai - a._ai || b._s - a._s)[0]; if (best) best._b = w ? 'MVP' : 'ACE'; }
   ps.forEach(p => p._t = remake ? [] : titlesOf(p, ps, dur, arena, info.queueId, tkey));
   const end = info.gameEndTimestamp || (info.gameStartTimestamp || info.gameCreation) + dur * 1000;
   return { m, me, ps, dur, remake, arena, end, q: info.queueId, kp: pct(me.kills + me.assists, tk), cs: me.totalMinionsKilled + me.neutralMinionsKilled };
@@ -1379,13 +1411,13 @@ function renderMatches(reset) {
   renderTitles(valid); applyCF();
 }
 
+const aiCls = s => s >= 80 ? 'a1' : s >= 65 ? 'a2' : s >= 45 ? 'a3' : 'a4';
 function matchRow(a, idx) {
   const { m, me, ps, dur, remake, arena } = a;
   const cls = remake ? 'remake' : me.win ? 'win' : 'lose';
   const r = ratioOf(me.kills, me.deaths, me.assists);
   const min = dur / 60;
   const badges = [];
-  if (me._b === 'MVP') badges.push('<span class="badge b-mvp">MVP</span>'); else if (me._b === 'ACE') badges.push('<span class="badge b-ace">ACE</span>');
   if (me.largestMultiKill >= 2) badges.push(`<span class="badge ${me.largestMultiKill === 5 ? 'b-penta' : 'b-multi'}">${MULTI[Math.min(5, me.largestMultiKill)]}</span>`);
   if (arena && me.placement) badges.push(`<span class="badge b-multi">${me.placement}등</span>`);
   const res = remake ? '다시하기' : arena ? `${me.placement || '-'}등` : me.win ? '승리' : '패배';
@@ -1399,6 +1431,7 @@ function matchRow(a, idx) {
       <div class="mstats"><div>킬관여 <b>${a.kp}%</b></div><div>CS <b>${a.cs}</b> (${(a.cs / min).toFixed(1)})</div><div>시야 <b>${me.visionScore}</b> · OP <b>${me._s.toFixed(1)}</b></div></div></div>
       ${titlesRow(tl)}
       <div class="m-bottom">${itemsHTML(me)}${badges.join('')}</div></div>
+    <div class="m-ai ${aiCls(me._ai)}" data-tt="AI-Score ${me._ai}점 · 게임 내 ${me._ar}위" data-tb="같은 게임 10명과 비교한 기여도 점수예요. 킬관여, 딜 비중, KDA, 골드, CS, 시야, 오브젝트를 종합하고 데스는 감점, 승리는 가산해요."><small>AI-Score</small><b>${remake ? '-' : me._ai}</b>${me._b ? `<em class="${me._b === 'MVP' ? 'mvp' : 'ace'}">${me._b === 'MVP' ? ICON.crown : ''}${me._b}</em>` : `<em class="rk">${me._ar}위</em>`}</div>
     <div class="m-players">${players}</div>
     <div class="m-exp">${ICON.chev}</div></div>`;
 }
@@ -1406,11 +1439,11 @@ function matchRow(a, idx) {
 /* ---- match detail ---- */
 function teamTable(a, list, tid, maxD, maxT, title) {
   const w = list[0]?.win;
-  return `<table class="tt"><thead><tr><th class="${w ? 'w' : 'l'}">${title}</th><th>OP 스코어</th><th>KDA</th><th>피해량</th><th>골드</th><th>CS</th><th>시야</th><th>아이템</th></tr></thead><tbody>${list.map(p => {
+  return `<table class="tt"><thead><tr><th class="${w ? 'w' : 'l'}">${title}</th><th>AI-Score</th><th>KDA</th><th>피해량</th><th>골드</th><th>CS</th><th>시야</th><th>아이템</th></tr></thead><tbody>${list.map(p => {
     const r = ratioOf(p.kills, p.deaths, p.assists), cs = p.totalMinionsKilled + p.neutralMinionsKilled;
-    const tag = p._b === 'MVP' ? '<em class="mvp">MVP</em>' : p._b === 'ACE' ? '<em class="ace">ACE</em>' : `<em>${p._r}위</em>`;
+    const tag = p._b === 'MVP' ? '<em class="mvp">MVP</em>' : p._b === 'ACE' ? '<em class="ace">ACE</em>' : `<em>${p._ar}위</em>`;
     return `<tr class="${p.puuid === P.puuid ? 'me' : p.win ? 'win' : 'lose'}"><td><div class="tp"><div class="mch">${cImg(p.championId)}<span>${p.champLevel}</span></div>${ssHTML(p)}<div style="min-width:0"><a class="nm" href="${sumLink(P.pf, pname(p), ptag(p))}" style="display:block">${esc(pname(p))}</a><div class="tg">#${esc(ptag(p))}</div>${p._t && p._t[0] ? titleChip(p._t[0], true) : ''}</div></div></td>
-    <td><span class="score">${p._s.toFixed(1)} ${tag}</span></td>
+    <td><span class="score"><i class="aib ${aiCls(p._ai)}">${p._ai}</i> ${tag}</span></td>
     <td><b class="${kcls(r)}">${p.kills}/<span class="d">${p.deaths}</span>/${p.assists}</b><div class="mute" style="font-size:11px">${r}${r === 'Perfect' ? '' : ':1'}</div></td>
     <td class="dmg"><div class="v">${num(p.totalDamageDealtToChampions)} / <span class="mute">${num(p.totalDamageTaken)}</span></div><div class="bars"><div class="bar"><i style="width:${pct(p.totalDamageDealtToChampions, maxD)}%"></i></div><div class="bar t"><i style="width:${pct(p.totalDamageTaken, maxT)}%"></i></div></div></td>
     <td>${num(p.goldEarned)}</td><td>${cs}<div class="mute" style="font-size:11px">${(cs / (a.dur / 60)).toFixed(1)}/분</div></td>
