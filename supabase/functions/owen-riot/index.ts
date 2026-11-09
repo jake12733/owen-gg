@@ -1,6 +1,6 @@
 // supabase/functions/owen-riot/index.ts
 // Owen.gg 클라우드 프록시: Riot API 호출 + 개발 키 저장/자동 적용
-// - 소유자 코드(OWNER_TOKEN)가 있는 사용자만 실제 데이터 조회 (개발 키는 공개 서비스 사용 금지)
+// - 전적 조회는 누구나(친구 공유용), 키 변경은 소유자 코드(OWNER_TOKEN)가 있는 운영자만
 // - 키는 DB(public.riot_config)에 저장되어 즉시 적용됨
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const OWNER = Deno.env.get("OWNER_TOKEN") ?? "";
@@ -186,13 +186,12 @@ Deno.serve(async (req) => {
   const owner = !!OWNER && req.headers.get("x-owner-token") === OWNER;
   try {
     if (name === "status") {
-      if (!owner) return json(200, { ok: true, cloud: true, ownerRequired: true, hasServerKey: false });
       const k = await loadKey(true);
       const appliedAt = k.appliedAt || null;
-      return json(200, { ok: true, cloud: true, owner: true, hasServerKey: !!k.key, keyValid: k.key ? await validity(k.key) : null, appliedAt, expiresAt: appliedAt ? appliedAt + 86400000 : null, keyTail: k.key ? k.key.slice(-4) : "" });
+      return json(200, { ok: true, cloud: true, owner, hasServerKey: !!k.key, keyValid: k.key ? await validity(k.key) : null, appliedAt, expiresAt: appliedAt ? appliedAt + 86400000 : null, keyTail: k.key ? k.key.slice(-4) : "" });
     }
-    if (!owner) return json(401, { error: "소유자 코드가 필요합니다. 설정에서 소유자 코드를 입력하세요.", code: 401, owner: false });
     if (name === "key" && req.method === "POST") {
+      if (!owner) return json(401, { error: "키 변경은 운영자만 할 수 있어요. (소유자 코드 필요)", code: 401 });
       const b = await req.json().catch(() => ({}));
       const k = String(b.key || "").trim();
       if (!/^RGAPI-[0-9a-f-]{36}$/i.test(k)) return json(400, { error: "키 형식이 올바르지 않습니다. (RGAPI-로 시작하는 키)" });
