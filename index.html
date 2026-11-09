@@ -696,7 +696,76 @@ footer{border-top:1px solid var(--line);padding:26px 20px;text-align:center;colo
 .hot-list a{font-size:12px;font-weight:700;padding:5px 10px;border-radius:20px;background:rgba(239,69,97,.12);color:#ff8ea0;border:1px solid rgba(239,69,97,.25)}
 .hot-list a:hover{background:rgba(239,69,97,.22)}
 .hof .sk{border-radius:18px}
+
+/* 챔피언 상세 v2 */
+.cd .cdet-h{align-items:flex-start}
+.cd .cdet-h h2{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.cd-btns{display:flex;gap:8px;margin-left:auto}
+.sk-row{display:flex;gap:6px;margin-top:10px}
+.sk-ic{position:relative;display:inline-block}
+.sk-ic img{width:36px;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.12)}
+.sk-ic kbd{position:absolute;right:-3px;bottom:-3px;font-size:9px;font-weight:900;background:#0b0f18;border:1px solid var(--line2);border-radius:4px;padding:0 4px;color:var(--gold2)}
+.cd-pos{display:flex;gap:6px;margin:0 0 14px;flex-wrap:wrap}
+.cd-pos a{display:flex;align-items:center;gap:7px;padding:8px 14px;border-radius:10px;background:var(--card);border:1px solid var(--line);font-weight:800;font-size:13px;color:var(--sub)}
+.cd-pos a img{width:18px;height:18px}
+.cd-pos a small{font-size:11px;color:var(--mute);font-weight:600}
+.cd-pos a.on{color:var(--text);border-color:var(--gold2);background:rgba(240,210,140,.08)}
+.cd-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:14px;align-items:start}
+.cd-col{display:flex;flex-direction:column;gap:14px}
+.cd h4{display:flex;align-items:center;gap:6px}
+.rpages{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.rpage{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
+.rpage.on{border-color:rgba(240,210,140,.45);background:rgba(240,210,140,.06)}
+.rpage>div{flex:1;margin-left:6px}.rpage b{font-size:14px}.rpage small{display:block;font-size:11px;color:var(--mute);font-weight:600}
+.rpage>b{text-align:right}
+.rimg{width:30px;height:30px;border-radius:50%;background:#0006;display:inline-block}
+.rimg.ks{width:40px;height:40px;background:#000a}
+.rimg.st{width:26px;height:26px;padding:3px}
+.rimg.sh{width:26px;height:26px;padding:3px;background:#0008}
+.rtrees{display:grid;grid-template-columns:1.2fr 1fr .8fr;gap:10px}
+.rtree{padding:10px;border-radius:12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05)}
+.rt-h{display:flex;align-items:center;gap:6px;font-size:12px;margin-bottom:8px}
+.rrow{display:flex;justify-content:space-around;margin:6px 0}
+.rrow.key .rimg{width:38px;height:38px}
+.rc{display:flex;flex-direction:column;align-items:center;gap:2px;opacity:.28;filter:grayscale(1);transition:.15s}
+.rc.some{opacity:.6;filter:grayscale(.5)}
+.rc.on{opacity:1;filter:none}
+.rc.on .rimg{box-shadow:0 0 0 2px var(--gold2)}
+.rc small{font-size:10px;color:var(--sub);min-height:12px}
+.sk-orders{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.sk-o{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
+.sk-seq{display:flex;align-items:center;gap:6px;flex:1}
+.sk-seq span{position:relative}.sk-seq img{width:34px;height:34px;border-radius:8px}
+.sk-seq kbd,.sg-k kbd{position:absolute;right:-3px;bottom:-3px;font-size:9px;font-weight:900;background:#0b0f18;border:1px solid var(--line2);border-radius:4px;padding:0 4px;color:var(--gold2)}
+.sk-seq i{color:var(--mute);font-style:normal;font-weight:900}
+.sk-grid{display:flex;flex-direction:column;gap:3px;overflow-x:auto;overflow-y:hidden;padding:3px 0 4px;scrollbar-width:thin}
+.sg-r{display:flex;align-items:center;gap:3px}
+.sg-k{position:relative;width:30px;flex:none}.sg-k img{width:26px;height:26px;border-radius:6px}
+.sg-c{width:24px;height:24px;border-radius:5px;background:rgba(255,255,255,.04);display:grid;place-items:center;font-size:11px;font-weight:900;flex:none}
+.sg-c.on.Q{background:#3d7bff;color:#fff}.sg-c.on.W{background:#0ac8b9;color:#03201d}.sg-c.on.E{background:#c06bff;color:#fff}.sg-c.on.R{background:#f0a43a;color:#2a1400}
+.ib-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ib-grid.three{grid-template-columns:repeat(3,1fr);margin-top:6px}
+.ib{margin-bottom:10px}
+.ib h5{font-size:12px;color:var(--sub);margin:4px 0 8px;font-weight:800}
+.ib-r{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:10px;background:rgba(255,255,255,.025);margin-bottom:6px}
+.ib-r.sm{padding:6px}
+.ib-ic{display:flex;align-items:center;gap:4px;flex:1;min-width:0}
+.ib-ic .it,.ib-ic img{width:30px;height:30px;border-radius:7px}
+.ib-ic .arr{font-style:normal;color:var(--mute);font-weight:900}
+.ib-s{text-align:right;font-size:12.5px;line-height:1.2}.ib-s small{display:block;color:var(--mute);font-size:10.5px}
+.ib-w{min-width:52px;text-align:right;font-size:13px}
+.wr-lo{color:#ff6b84}
+.cnt-wrap{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cnt-wrap h5{font-size:12px;margin-bottom:8px}.cnt-wrap h5.lo{color:#ff8ea0}.cnt-wrap h5.hi{color:#5b93ff}
+.cnt{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:10px;font-size:12.5px;transition:background .12s}
+.cnt:hover{background:rgba(255,255,255,.04)}
+.cnt img{width:28px;height:28px;border-radius:7px}
+.cnt span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700;display:flex;align-items:center;gap:4px}
+.cnt .pi{width:14px;height:14px;opacity:.8}
+.cnt small{color:var(--mute);font-size:11px;min-width:40px;text-align:right}
+.empty.sm{padding:10px;font-size:12px}
 @media (max-width:980px){
+  .cd-grid{grid-template-columns:1fr}.rtrees{grid-template-columns:1fr 1fr}
   .rk-grid{grid-template-columns:1fr}.hof{position:static}
   .sg{grid-template-columns:1fr}.sg-mid{border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);order:0}.sg-team.r .spr{flex-direction:row}.sg-team.r .spr .nm{text-align:right}
   .cgrid{grid-template-columns:1fr}.ms-grid{grid-template-columns:repeat(2,1fr)}.ct .hide-m{display:none}
@@ -1102,7 +1171,7 @@ function route() {
     renderProfile(parts[1] || 'kr', i > 0 ? id.slice(0, i) : id, i > 0 ? id.slice(i + 1) : DEFAULT_TAG[parts[1]] || 'KR1');
   } else if (parts[0] === 'ranking') { isDemo = !canLive(); renderRanking(parts[1] || curPf); }
   else if (parts[0] === 'spectate') { isDemo = !canLive(); const id = parts.slice(2).join('/'), i = id.lastIndexOf('-'); renderSpectate(parts[1] || curPf, id ? (i > 0 ? id.slice(0, i) : id) : '', id ? (i > 0 ? id.slice(i + 1) : DEFAULT_TAG[parts[1]] || 'KR1') : ''); }
-  else if (parts[0] === 'champions') { isDemo = !canLive(); renderChampions(parts[1] || ''); }
+  else if (parts[0] === 'champions') { isDemo = !canLive(); renderChampions(parts[1] || '', parts[2] || ''); }
   else if (parts[0] === 'masters') { isDemo = !canLive(); renderMasters(parts[1] || ''); }
   else if (parts[0] === 'multi') { isDemo = !canLive(); renderMulti(); }
   else { isDemo = false; renderHome(); }
@@ -1754,8 +1823,8 @@ function tierOf(list) {
   sc.forEach((o, i) => { const p = i / Math.max(1, sc.length); o.x.tier = p < .1 ? 1 : p < .3 ? 2 : p < .6 ? 3 : p < .85 ? 4 : 5; });
   list.forEach(x => { if (!x.tier) x.tier = 0; });
 }
-async function renderChampions(key) {
-  if (key) return renderChampDetail(key);
+async function renderChampions(key, pos) {
+  if (key) return renderChampDetail(key, pos);
   const tok = P.sess = Symbol();
   app.innerHTML = `<div class="wrap pg">${pageHead('챔피언 분석', '<span id="ca-meta">통계 불러오는 중…</span>', `<input class="ipt" id="ca-q" placeholder="챔피언 검색" value="${esc(CA.q)}">`)}
     <div class="card" style="margin-bottom:14px"><div class="cpick" id="ca-pick">${[...DD.champList].sort((a, b) => a.name.localeCompare(b.name, 'ko')).map(x => `<a href="#/champions/${x.key}" data-nm="${esc(x.name)} ${esc(x.id.toLowerCase())}"${CA.q && !(x.name + ' ' + x.id.toLowerCase()).includes(CA.q.toLowerCase()) ? ' hidden' : ''}><img src="${champImg(+x.key)}" loading="lazy" alt="">${esc(x.name)}</a>`).join('')}</div></div>
@@ -1778,35 +1847,103 @@ function drawChampTable() {
   const th = (k, l, cls = '') => `<th class="${cls}${CA.sort === k ? ' on' : ''}" data-csort="${k}">${l}</th>`;
   $('#ca-body').innerHTML = `<table class="ct"><thead><tr><th>#</th><th>챔피언</th>${th('tier', '티어')}${th('wr', '승률')}${th('pick', '픽률')}${th('ban', '밴률', 'hide-m')}${th('kda', 'KDA', 'hide-m')}${th('games', '게임 수', 'hide-m')}</tr></thead><tbody>${list.map((x, i) => { const low = x.games < 10 ? ' low' : ''; return `<tr data-champ="${x.id}"><td class="mute">${i + 1}</td><td><div class="cn"><img src="${champImg(x.id)}" alt="" loading="lazy">${esc(champName(x.id))}${x.pos && x.pos !== 'NONE' ? `<span class="pos"><img src="${posIcon(x.pos)}" alt="" data-tt="${POSK[x.pos] || ''}"></span>` : ''}</div></td><td>${x.tier ? `<span class="tbadge t${x.tier}">${x.tier}티어</span>` : '<span class="mute">-</span>'}</td><td class="${low.trim()}"><b class="${x.wr >= 53 && !low ? 'wr-hi' : ''}">${x.wr.toFixed(1)}%</b></td><td class="${low.trim()}">${x.pick.toFixed(1)}%</td><td class="hide-m${low}">${x.ban.toFixed(1)}%</td><td class="hide-m${low}">${x.kda >= 99 ? 'Perfect' : x.kda.toFixed(2)}</td><td class="hide-m mute">${num(x.games)}</td></tr>`; }).join('')}</tbody></table>`;
 }
-async function renderChampDetail(key) {
+/* ---- 챔피언 상세 (OP.GG 스타일 빌드 페이지) ---- */
+const SHARD = { 5008: ['StatModsAdaptiveForceIcon', '적응형 능력치'], 5005: ['StatModsAttackSpeedIcon', '공격 속도'], 5007: ['StatModsCDRScalingIcon', '스킬 가속'], 5010: ['StatModsMovementSpeedIcon', '이동 속도'], 5001: ['StatModsHealthScalingIcon', '체력 증가(레벨 비례)'], 5011: ['StatModsHealthPlusIcon', '체력'], 5013: ['StatModsTenacityIcon', '강인함·둔화 저항'], 5002: ['StatModsArmorIcon', '방어력'], 5003: ['StatModsMagicResIcon', '마법 저항력'] };
+const SHARD_ROWS = [[5008, 5005, 5007], [5008, 5010, 5001], [5011, 5013, 5001]];
+const shardImg = id => `<img class="rimg sh" src="https://ddragon.leagueoflegends.com/cdn/img/perk-images/StatMods/${(SHARD[id] || ['StatModsAdaptiveForceIcon'])[0]}.png" alt="" data-tt="${(SHARD[id] || [0, '능력치'])[1]}" onerror="this.style.visibility='hidden'">`;
+const rimg = (id, cls = '') => { const r = DD.runes[id]; return r ? `<img class="rimg ${cls}" src="https://ddragon.leagueoflegends.com/cdn/img/${r.icon}" alt="" data-tt="${esc(r.name)}" data-tb="${esc(strip(r.desc || ''))}">` : `<span class="rimg ${cls} none"></span>`; };
+const tally = (rows, keyFn) => { const m = new Map(); for (const r of rows) { const k = keyFn(r); if (k == null || k === '') continue; const o = m.get(k) || { k, n: 0, w: 0 }; o.n++; o.w += r.win ? 1 : 0; m.set(k, o); } return [...m.values()].sort((a, b) => b.n - a.n || b.w / b.n - a.w / a.n); };
+const pctS = (a, b) => b ? (a / b * 100).toFixed(1) + '%' : '-';
+const wrCls = (w, n) => n >= 3 && w / n >= .53 ? 'wr-hi' : n >= 3 && w / n < .47 ? 'wr-lo' : '';
+function maxOrder(s) { const c = { Q: 0, W: 0, E: 0 }, done = []; for (const ch of s) { if (c[ch] === undefined) continue; c[ch]++; if (c[ch] === 5 && !done.includes(ch)) done.push(ch); } ['Q', 'W', 'E'].sort((a, b) => c[b] - c[a]).forEach(k => { if (!done.includes(k)) done.push(k); }); return done.join(''); }
+async function renderChampDetail(key, posArg) {
   const c = champByKey(key); const tok = P.sess = Symbol();
   if (!c) { app.innerHTML = '<div class="card err"><div class="ic">!</div><h2>챔피언을 찾을 수 없어요</h2><div class="acts"><a class="btn" href="#/champions">챔피언 목록</a></div></div>'; return; }
   const cid = +c.key;
-  app.innerHTML = `<div class="wrap pg"><div class="cdet-h" style="--sp:url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${c.id}_0.jpg')"><img class="ic" src="${champImg(cid)}" alt=""><div><div class="mute" style="font-size:13px">${esc(c.title)}</div><h2>${esc(c.name)}</h2><div class="kv" id="cd-kv"><div><b>…</b>승률</div></div></div><div style="margin-left:auto;display:flex;gap:8px;align-self:flex-start"><a class="btn" href="#/masters/${cid}">장인 랭킹</a><a class="btn" href="#/champions">목록으로</a></div></div>
-    <div class="cgrid"><div class="card cbox"><h4>포지션별 성적</h4><div id="cd-pos"><div class="center"><div class="spin"></div></div></div></div><div class="card cbox"><h4>스킬</h4><div class="skills" id="cd-skills"><div class="center"><div class="spin"></div></div></div></div>
-    <div class="card cbox"><h4>많이 가는 핵심 아이템</h4><div id="cd-items"></div></div><div class="card cbox"><h4>핵심 룬 · 소환사 주문</h4><div id="cd-runes"></div></div>
-    <div class="card cbox" style="grid-column:1/-1"><h4>${esc(c.name)} 장인 TOP 5 <a class="sub" style="float:right;font-size:12px" href="#/masters/${cid}">전체 보기 ›</a></h4><div id="cd-masters"></div></div></div>
-    <div class="note">Owen.gg에서 조회된 실제 경기 기준이에요.</div></div>`;
-  fetch(`${CDN()}/data/ko_KR/champion/${c.id}.json`).then(r => r.json()).then(j => { const x = j.data[c.id]; if (tok !== P.sess) return; const row = (img, k, n, desc) => `<div class="sk-r"><img src="${img}" alt=""><div><b><kbd>${k}</kbd>${esc(n)}</b>${esc(strip(desc)).slice(0, 170)}${strip(desc).length > 170 ? '…' : ''}</div></div>`; $('#cd-skills').innerHTML = row(`${CDN()}/img/passive/${x.passive.image.full}`, 'P', x.passive.name, x.passive.description) + x.spells.map((s, i) => row(`${CDN()}/img/spell/${s.image.full}`, 'QWER'[i], s.name, s.description)).join(''); }).catch(() => { $('#cd-skills') && ($('#cd-skills').innerHTML = '<div class="empty">스킬 정보를 불러오지 못했어요.</div>'); });
+  app.innerHTML = `<div class="wrap pg cd"><div class="center" style="padding:80px"><div class="spin"></div></div></div>`;
+  let rows, meta, bans, ms, tot, sp;
   try {
-    const [rows, meta, bans, ms] = await Promise.all([STAT.get(`owen_champ_games?select=position,win,items,keystone,spells,kills,deaths,assists,cs,damage&champion_id=eq.${cid}&queue_id=in.${SRQ}&limit=2000`), STAT.get('owen_meta?select=*'), STAT.get(`owen_ban_stats?select=*&champion_id=eq.${cid}`), STAT.get(`owen_mastery?select=*&champion_id=eq.${cid}&order=points.desc&limit=5`)]);
-    if (tok !== P.sess) return;
-    const M = Math.max(1, meta[0]?.matches || 0), n = rows.length, w = rows.filter(r => r.win).length;
-    const av = f => n ? rows.reduce((s, r) => s + (f(r) || 0), 0) / n : 0;
-    const kda = av(r => r.deaths) ? (av(r => r.kills) + av(r => r.assists)) / av(r => r.deaths) : 0;
-    $('#cd-kv').innerHTML = n ? `<div><b class="${pct(w, n) >= 53 ? 'wr-hi' : ''}">${(w / n * 100).toFixed(1)}%</b>승률</div><div><b>${(n / M * 100).toFixed(1)}%</b>픽률</div><div><b>${((bans[0]?.bans || 0) / M * 100).toFixed(1)}%</b>밴률</div><div><b>${kda.toFixed(2)}</b>평균 KDA</div><div><b>${num(n)}</b>분석 게임</div>` : '<div><b>-</b>아직 이 챔피언의 수집된 경기가 없어요</div>';
-    const byPos = {}; rows.forEach(r => { const p = r.position || 'NONE'; (byPos[p] ||= { n: 0, w: 0 }); byPos[p].n++; byPos[p].w += r.win ? 1 : 0; });
-    const pl = Object.entries(byPos).filter(([p]) => POSK[p]).sort((a, b) => b[1].n - a[1].n);
-    $('#cd-pos').innerHTML = pl.length ? pl.map(([p, v]) => `<div class="irow"><img src="${posIcon(p)}" alt="" style="width:24px;height:24px">${POSK[p]}<div class="bar"><i style="width:${pct(v.n, n)}%"></i></div><span class="mute">${pct(v.n, n)}% · ${v.n}게임</span><b class="${pct(v.w, v.n) >= 53 ? 'wr-hi' : ''}">${pct(v.w, v.n)}%</b></div>`).join('') : '<div class="empty">데이터 없음</div>';
-    const legend = new Set(DD.legend), boots = new Set(DD.boots), ic = {};
-    rows.forEach(r => (r.items || []).forEach(id => { if (legend.has(id) || boots.has(id)) { (ic[id] ||= { n: 0, w: 0 }); ic[id].n++; ic[id].w += r.win ? 1 : 0; } }));
-    const top = (o, k) => Object.entries(o).sort((a, b) => b[1].n - a[1].n).slice(0, k);
-    const irow = (img, label, v) => `<div class="irow">${img}<span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(label)}</span><span class="mute">픽 ${pct(v.n, n)}%</span><b class="${pct(v.w, v.n) >= 53 ? 'wr-hi' : ''}">${pct(v.w, v.n)}%</b></div>`;
-    $('#cd-items').innerHTML = n ? top(ic, 7).map(([id, v]) => irow(itemImg(+id), DD.items[id]?.name || '아이템', v)).join('') : '<div class="empty">데이터 없음</div>';
-    const kc = {}, sc = {}; rows.forEach(r => { if (r.keystone) { (kc[r.keystone] ||= { n: 0, w: 0 }); kc[r.keystone].n++; kc[r.keystone].w += r.win ? 1 : 0; } const s = (r.spells || []).slice().sort((a, b) => a - b).join(','); if (s) { (sc[s] ||= { n: 0, w: 0 }); sc[s].n++; sc[s].w += r.win ? 1 : 0; } });
-    $('#cd-runes').innerHTML = n ? top(kc, 3).map(([id, v]) => irow(runeImg(+id, '').replace('<img', '<img style="width:32px;height:32px;border-radius:50%;background:#0008"'), DD.runes[id]?.name || '룬', v)).join('') + '<div style="height:8px"></div>' + top(sc, 2).map(([s, v]) => irow(`<span style="display:flex;gap:3px">${s.split(',').map(id => spellImg(+id).replace('<img', '<img style="width:26px;height:26px;border-radius:6px"')).join('')}</span>`, s.split(',').map(id => DD.spells[id]?.name || '').join(' + '), v)).join('') : '<div class="empty">데이터 없음</div>';
-    $('#cd-masters').innerHTML = ms.length ? masterTable(ms, false) : '<div class="empty">아직 등록된 장인이 없어요. 이 챔피언을 많이 하는 소환사를 검색하면 등록돼요.</div>';
-  } catch (e) { if (tok === P.sess) $('#cd-kv').innerHTML = `<div class="mute">${esc(e.message)}</div>`; }
+    [rows, meta, bans, ms, tot] = await Promise.all([
+      STAT.get(`owen_champ_games?select=position,win,items,keystone,spells,runes,skills,starter,buys,kills,deaths,assists&champion_id=eq.${cid}&queue_id=in.${SRQ}&limit=3000`),
+      STAT.get('owen_meta?select=*'), STAT.get(`owen_ban_stats?select=*&champion_id=eq.${cid}`),
+      STAT.get(`owen_mastery?select=*&champion_id=eq.${cid}&order=points.desc&limit=5`), STAT.get('owen_champ_total?select=*')]);
+  } catch (e) { if (tok === P.sess) app.innerHTML = `<div class="card err"><div class="ic">!</div><h2>통계를 불러오지 못했어요</h2><p>${esc(e.message)}</p></div>`; return; }
+  sp = await fetch(`${CDN()}/data/ko_KR/champion/${c.id}.json`).then(r => r.json()).then(j => j.data[c.id]).catch(() => null);
+  if (tok !== P.sess) return;
+  const M = Math.max(1, meta[0]?.matches || 0);
+  const byPos = tally(rows.filter(r => POSK[r.position]), r => r.position);
+  const pos = POSK[posArg] ? posArg : byPos[0]?.k || '';
+  const R = pos ? rows.filter(r => r.position === pos) : rows, n = R.length, w = R.filter(r => r.win).length;
+  /* 티어: 전체 챔피언 중 위치 */
+  const tl = tot.map(r => ({ id: r.champion_id, games: r.games, wins: r.wins, wr: r.wins / r.games * 100, pick: r.games / M * 100 })); tierOf(tl);
+  const myTier = tl.find(x => x.id === cid)?.tier || 0;
+  const skillIcon = (img, k, nm, desc) => `<span class="sk-ic" data-tt="${k} · ${esc(nm)}" data-tb="${esc(strip(desc)).slice(0, 220)}"><img src="${img}" alt=""><kbd>${k}</kbd></span>`;
+  const skills = sp ? skillIcon(`${CDN()}/img/passive/${sp.passive.image.full}`, 'P', sp.passive.name, sp.passive.description) + sp.spells.map((s, i) => skillIcon(`${CDN()}/img/spell/${s.image.full}`, 'QWER'[i], s.name, s.description)).join('') : '';
+  const sImg = k => { const i = 'QWER'.indexOf(k); return sp && i >= 0 ? `<img src="${CDN()}/img/spell/${sp.spells[i].image.full}" alt="">` : ''; };
+  /* 룬 */
+  const RR = R.filter(r => r.runes && r.runes[0]);
+  const pages = tally(RR, r => r.runes[0] + '-' + r.runes[1] + '-' + r.runes[5]).slice(0, 2);
+  const selPage = pages[0]?.k.split('-').map(Number);
+  const runeTree = () => {
+    if (!selPage) return '<div class="empty">아직 룬 데이터가 없어요. 경기가 쌓이면 자동으로 채워져요.</div>';
+    const [ps, , ss] = selPage, prim = RR.filter(r => r.runes[0] === ps), sub = RR.filter(r => r.runes[5] === ss);
+    const cnt = (rs, idxs) => { const m = {}; for (const r of rs) for (const i of idxs) { const id = r.runes[i]; if (!id) continue; (m[id] ||= { n: 0, w: 0 }); m[id].n++; m[id].w += r.win ? 1 : 0; } return m; };
+    const pc = cnt(prim, [1, 2, 3, 4]), sc = cnt(sub, [6, 7]);
+    const st = DD.styles.find(x => x.id === ps), st2 = DD.styles.find(x => x.id === ss);
+    const cell = (id, m, tot, rowMax) => { const o = m[id]; return `<div class="rc${o ? (o.n === rowMax ? ' on' : ' some') : ''}" data-tt="${esc(DD.runes[id]?.name || '')}" data-tb="${o ? '픽률 ' + pctS(o.n, tot) + ' · 승률 ' + pctS(o.w, o.n) : '선택 기록 없음'}">${rimg(id)}<small>${o ? pctS(o.n, tot) : ''}</small></div>`; };
+    const tree = (s, m, tot, from) => s ? `<div class="rtree"><div class="rt-h">${rimg(s.id, 'st')}<b>${esc(s.name)}</b></div>${s.slots.slice(from).map((sl, i) => { const mx = Math.max(0, ...sl.runes.map(x => m[x.id]?.n || 0)); return `<div class="rrow${from === 0 && i === 0 ? ' key' : ''}">${sl.runes.map(x => cell(x.id, m, tot, mx)).join('')}</div>`; }).join('')}</div>` : '';
+    const sh = SHARD_ROWS.map((row, i) => { const m = {}; RR.forEach(r => { const id = r.runes[8 + i]; if (id) { (m[id] ||= { n: 0, w: 0 }); m[id].n++; } }); const top = Object.entries(m).sort((a, b) => b[1].n - a[1].n)[0]?.[0]; return `<div class="rrow sh">${row.map(id => `<div class="rc${+top === id ? ' on' : m[id] ? ' some' : ''}">${shardImg(id)}<small>${m[id] ? pctS(m[id].n, RR.length) : ''}</small></div>`).join('')}</div>`; }).join('');
+    return `<div class="rtrees">${tree(st, pc, prim.length, 0)}${tree(st2, sc, sub.length, 1)}<div class="rtree"><div class="rt-h"><b>능력치 파편</b></div>${sh}</div></div>`;
+  };
+  /* 스펠 · 스킬 */
+  const spells = tally(R.filter(r => r.spells), r => r.spells.slice().sort((a, b) => a - b).join(',')).slice(0, 2);
+  const SK = R.filter(r => r.skills && r.skills.length >= 6);
+  const orders = tally(SK, r => maxOrder(r.skills)).slice(0, 2);
+  const seqs = tally(SK.filter(r => r.skills.length >= 15 && (!orders[0] || maxOrder(r.skills) === orders[0].k)), r => r.skills.slice(0, 15)).slice(0, 1);
+  const seq = seqs[0]?.k || '';
+  /* 아이템 */
+  const legend = new Set(DD.legend), boots = new Set(DD.boots);
+  const B = R.filter(r => r.buys && r.buys.length);
+  const legSeq = r => { const out = []; for (const id of (r.buys && r.buys.length ? r.buys : (r.items || []))) if (legend.has(id) && !out.includes(id)) out.push(id); return out; };
+  const starter = tally(R.filter(r => r.starter && r.starter.length), r => r.starter.slice().sort((a, b) => a - b).join(',')).slice(0, 2);
+  const bootsT = tally(R, r => ((r.buys && r.buys.length ? r.buys : r.items) || []).find(id => boots.has(id))).slice(0, 2);
+  const core = tally(R.filter(r => legSeq(r).length >= 3), r => legSeq(r).slice(0, 3).join(',')).slice(0, 5);
+  const nth = k => tally(R.filter(r => legSeq(r).length > k), r => legSeq(r)[k]).slice(0, 4);
+  const ordered = B.length > 0;
+  const itemRow = (ids, o, tot, sep = '') => `<div class="ib-r"><div class="ib-ic">${String(ids).split(',').map(id => itemImg(+id)).join(sep)}</div><div class="ib-s"><b>${pctS(o.n, tot)}</b><small>${num(o.n)}게임</small></div><b class="ib-w ${wrCls(o.w, o.n)}">${pctS(o.w, o.n)}</b></div>`;
+  const section = (title, list, tot, sep) => `<div class="ib"><h5>${title}</h5>${list.length ? list.map(o => itemRow(o.k, o, tot, sep)).join('') : '<div class="empty sm">데이터 수집 중</div>'}</div>`;
+  /* 카운터 · 시너지 */
+  const [mu, syn] = await Promise.all([pos ? STAT.get(`owen_matchups?select=*&champion_id=eq.${cid}&position=eq.${pos}`).catch(() => []) : [], pos ? STAT.get(`owen_synergy?select=*&champion_id=eq.${cid}&position=eq.${pos}&order=games.desc&limit=40`).catch(() => []) : []]);
+  if (tok !== P.sess) return;
+  const muOk = mu.filter(x => x.games >= 2), weak = [...muOk].sort((a, b) => a.wins / a.games - b.wins / b.games || b.games - a.games).slice(0, 5), strong = [...muOk].sort((a, b) => b.wins / b.games - a.wins / a.games || b.games - a.games).slice(0, 5);
+  const cRow = (x, idKey) => `<a class="cnt" href="#/champions/${x[idKey]}">${cImg(x[idKey])}<span>${esc(champName(x[idKey]))}</span><b class="${wrCls(x.wins, x.games)}">${pctS(x.wins, x.games)}</b><small>${x.games}게임</small></a>`;
+  const synTop = syn.filter(x => x.games >= 2).sort((a, b) => b.games - a.games).slice(0, 5);
+  const tierB = myTier ? `<span class="tbadge t${myTier}">${myTier}티어</span>` : '';
+  app.innerHTML = `<div class="wrap pg cd">
+    <div class="cdet-h" style="--sp:url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${c.id}_0.jpg')"><img class="ic" src="${champImg(cid)}" alt="">
+      <div style="min-width:0;flex:1"><div class="mute" style="font-size:13px">${esc(c.title)}</div><h2>${esc(c.name)} <small class="mute" style="font-size:15px;font-weight:700">${pos ? POSK[pos] + ' 빌드' : ''}</small> ${tierB}</h2>
+        <div class="sk-row">${skills}</div>
+        <div class="kv"><div><b class="${wrCls(w, n)}">${pctS(w, n)}</b>승률</div><div><b>${pctS(n, M)}</b>픽률</div><div><b>${pctS(bans[0]?.bans || 0, M)}</b>밴률</div><div><b>${num(n)}</b>분석 게임</div></div></div>
+      <div class="cd-btns"><a class="btn" href="#/masters/${cid}">장인 랭킹</a><a class="btn" href="#/champions">목록으로</a></div></div>
+    ${byPos.length ? `<div class="cd-pos">${byPos.map(o => `<a href="#/champions/${cid}/${o.k}" class="${o.k === pos ? 'on' : ''}"><img src="${posIcon(o.k)}" alt="">${POSK[o.k]}<small>${pctS(o.n, rows.length)}</small></a>`).join('')}</div>` : ''}
+    <div class="cd-grid">
+      <div class="cd-col">
+        <div class="card cbox"><h4>룬</h4>${pages.length ? `<div class="rpages">${pages.map((o, i) => { const [a, k, b] = o.k.split('-').map(Number); return `<div class="rpage${i === 0 ? ' on' : ''}">${rimg(a, 'st')}${rimg(k, 'ks')}${rimg(b, 'st')}<div><b>${pctS(o.n, RR.length)}</b><small>${num(o.n)}게임 · 픽률</small></div><b class="${wrCls(o.w, o.n)}">${pctS(o.w, o.n)}<small>승률</small></b></div>`; }).join('')}</div>` : ''}${runeTree()}</div>
+        <div class="card cbox"><h4>스킬 순서</h4>${orders.length ? `<div class="sk-orders">${orders.map(o => `<div class="sk-o"><div class="sk-seq">${o.k.split('').map((k, i) => `${i ? '<i>›</i>' : ''}<span>${sImg(k)}<kbd>${k}</kbd></span>`).join('')}</div><div class="ib-s"><b>${pctS(o.n, SK.length)}</b><small>${num(o.n)}게임</small></div><b class="ib-w ${wrCls(o.w, o.n)}">${pctS(o.w, o.n)}</b></div>`).join('')}</div>
+          ${seq ? `<div class="sk-grid">${['Q', 'W', 'E', 'R'].map(k => `<div class="sg-r"><span class="sg-k">${sImg(k)}<kbd>${k}</kbd></span>${[...Array(15)].map((_, i) => `<span class="sg-c${seq[i] === k ? ' on ' + k : ''}">${seq[i] === k ? i + 1 : ''}</span>`).join('')}</div>`).join('')}</div>` : ''}` : '<div class="empty">스킬 순서 데이터를 모으는 중이에요.</div>'}</div>
+        <div class="card cbox"><h4>상대 전적 <span class="mute" style="font-weight:600">· 같은 라인 맞상대</span></h4>${muOk.length ? `<div class="cnt-wrap"><div><h5 class="lo">상대하기 어려운 챔피언</h5>${weak.map(x => cRow(x, 'opp_id')).join('')}</div><div><h5 class="hi">상대하기 쉬운 챔피언</h5>${strong.map(x => cRow(x, 'opp_id')).join('')}</div></div>` : '<div class="empty">맞상대 데이터를 모으는 중이에요.</div>'}</div>
+      </div>
+      <div class="cd-col">
+        <div class="card cbox"><h4>소환사 주문</h4>${spells.length ? spells.map(o => `<div class="ib-r"><div class="ib-ic">${o.k.split(',').map(id => spellImg(+id).replace('<img', '<img class="it"')).join('')}</div><div class="ib-s"><b>${pctS(o.n, n)}</b><small>${num(o.n)}게임</small></div><b class="ib-w ${wrCls(o.w, o.n)}">${pctS(o.w, o.n)}</b></div>`).join('') : '<div class="empty">데이터 없음</div>'}</div>
+        <div class="card cbox"><h4>아이템 빌드 ${ordered ? '' : '<span class="mute" style="font-weight:600">· 구매 순서 데이터 수집 중 (최종 아이템 기준)</span>'}</h4>
+          <div class="ib-grid">${section('시작 아이템', starter, R.filter(r => r.starter && r.starter.length).length)}${section('신발', bootsT, n)}</div>
+          ${section('핵심 빌드', core, R.filter(r => legSeq(r).length >= 3).length, '<i class="arr">›</i>')}
+          <div class="ib-grid three">${[3, 4, 5].map(k => { const l = nth(k), t = R.filter(r => legSeq(r).length > k).length; return `<div class="ib"><h5>${k + 1}번째 아이템</h5>${l.length ? l.map(o => `<div class="ib-r sm"><div class="ib-ic">${itemImg(+o.k)}</div><div class="ib-s"><b class="${wrCls(o.w, o.n)}">${pctS(o.w, o.n)}</b><small>${num(o.n)}게임</small></div></div>`).join('') : '<div class="empty sm">-</div>'}</div>`; }).join('')}</div></div>
+        <div class="card cbox"><h4>함께하면 좋은 챔피언</h4>${synTop.length ? `<div class="syn">${synTop.map(x => `<a class="cnt" href="#/champions/${x.ally_id}">${cImg(x.ally_id)}<span>${esc(champName(x.ally_id))} <img class="pi" src="${posIcon(x.ally_pos)}" alt=""></span><b class="${wrCls(x.wins, x.games)}">${pctS(x.wins, x.games)}</b><small>${x.games}게임</small></a>`).join('')}</div>` : '<div class="empty">시너지 데이터를 모으는 중이에요.</div>'}</div>
+        <div class="card cbox"><h4>${esc(c.name)} 장인 TOP 5 <a class="sub" style="float:right;font-size:12px" href="#/masters/${cid}">전체 보기 ›</a></h4>${ms.length ? masterTable(ms, false) : '<div class="empty">아직 등록된 장인이 없어요.</div>'}</div>
+      </div>
+    </div>
+    <div class="note">Owen.gg에서 모은 실제 경기(솔로·자유랭크, 일반) 기준이에요. 상위 랭커 게임이 끝날 때마다 자동으로 수집돼서 시간이 지날수록 정확해져요.</div></div>`;
 }
 
 /* ---- 장인 랭킹 ---- */
