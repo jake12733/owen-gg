@@ -993,10 +993,10 @@ function styleTags(valid) {
 }
 function applyCF() {
   const bar = $('#cf-bar'); if (!bar) return;
-  $('#side-champs .row[data-cf]').forEach(r => r.classList.toggle('on', r.dataset.cf === P.champ));
-  $('#mlist .match').forEach(r => { const hide = !!P.champ && r.dataset.cid !== P.champ; r.hidden = hide; const nx = r.nextElementSibling; if (hide && nx && nx.classList.contains('m-detail')) { nx.remove(); r.classList.remove('open'); } });
+  $$('#side-champs .row[data-cf]').forEach(r => r.classList.toggle('on', r.dataset.cf === P.champ));
+  $$('#mlist .match').forEach(r => { const hide = !!P.champ && r.dataset.cid !== P.champ; r.hidden = hide; const nx = r.nextElementSibling; if (hide && nx && nx.classList.contains('m-detail')) { nx.remove(); r.classList.remove('open'); } });
   if (!P.champ) { bar.innerHTML = ''; return; }
-  const shown = $('#mlist .match').filter(r => !r.hidden).length;
+  const shown = $$('#mlist .match').filter(r => !r.hidden).length;
   bar.innerHTML = `<div class="cf-bar">${cImg(+P.champ)}<span><b>${esc(champName(+P.champ))}</b> 게임만 보는 중 · ${shown}게임</span><button data-act="cf-clear">필터 해제</button></div>`;
 }
 
