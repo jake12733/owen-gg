@@ -102,6 +102,41 @@ function slimMatch(m: any) {
   if (!m || !m.info) return m;
   return { metadata: { matchId: m.metadata?.matchId }, info: { ...m.info, tournamentCode: undefined, participants: (m.info.participants || []).map((p) => { const o: Record<string, unknown> = {}; for (const k in p) if (KEEP_P.has(k)) o[k] = p[k]; return o; }) } };
 }
+/* ---- 통계 수집: 챔피언 분석·장인 랭킹용 (Riot에서 받은 실제 데이터만 서버가 저장) ---- */
+const SR_Q = new Set([400, 420, 430, 440, 490]);
+const collected = new Set<string>();
+function bg(p: Promise<unknown>) { p.catch(() => {}); try { (globalThis as any).EdgeRuntime?.waitUntil?.(p); } catch { /* */ } }
+async function sbInsert(table: string, rows: unknown[], conflict: string, merge = false) {
+  if (!rows.length || !SVC) return;
+  await fetch(`${SUPABASE_URL}/rest/v1/${table}?on_conflict=${conflict}`, { method: "POST", headers: { ...svcH(), Prefer: `resolution=${merge ? "merge" : "ignore"}-duplicates,return=minimal` }, body: JSON.stringify(rows) }).catch(() => {});
+}
+async function collectMatch(pf: string, m: any) {
+  const id = m?.metadata?.matchId, info = m?.info;
+  if (!id || !info || collected.has(id)) return;
+  collected.add(id); if (collected.size > 20000) collected.clear();
+  const dur = info.gameEndTimestamp ? info.gameDuration : info.gameDuration / 1000;
+  if (!SR_Q.has(info.queueId) || dur < 300 || !Array.isArray(info.participants)) return;
+  const patch = String(info.gameVersion || "").split(".").slice(0, 2).join(".");
+  const end = new Date(info.gameEndTimestamp || (info.gameStartTimestamp || info.gameCreation) + dur * 1000).toISOString();
+  await sbInsert("owen_matches", [{ match_id: id, platform: pf, queue_id: info.queueId, patch, game_end: end, duration: Math.round(dur) }], "match_id");
+  await sbInsert("owen_champ_games", info.participants.filter((p: any) => p.puuid).map((p: any) => ({
+    match_id: id, puuid: p.puuid, champion_id: p.championId, position: p.teamPosition || "", win: !!p.win,
+    kills: p.kills, deaths: p.deaths, assists: p.assists, cs: (p.totalMinionsKilled || 0) + (p.neutralMinionsKilled || 0),
+    damage: p.totalDamageDealtToChampions || 0, gold: p.goldEarned || 0, items: [p.item0, p.item1, p.item2, p.item3, p.item4, p.item5].map((x: number) => x || 0),
+    keystone: p.perks?.styles?.[0]?.selections?.[0]?.perk ?? null, spells: [p.summoner1Id, p.summoner2Id], queue_id: info.queueId, patch, game_end: end,
+    platform: pf, riot_name: p.riotIdGameName || null, riot_tag: p.riotIdTagline || null,
+  })), "match_id,puuid");
+  const bans: unknown[] = []; for (const t of info.teams || []) for (const b of t.bans || []) if (b.championId > 0) bans.push({ match_id: id, team_id: t.teamId, champion_id: b.championId });
+  await sbInsert("owen_bans", bans, "match_id,team_id,champion_id");
+}
+async function collectMastery(pf: string, d: any) {
+  const acc = d?.account; if (!acc?.puuid || !Array.isArray(d.mastery)) return;
+  const solo = (d.league || []).find((e: any) => e.queueType === "RANKED_SOLO_5x5");
+  await sbInsert("owen_mastery", d.mastery.map((m: any) => ({
+    puuid: acc.puuid, champion_id: m.championId, points: m.championPoints, level: m.championLevel, platform: pf,
+    riot_name: acc.gameName, riot_tag: acc.tagLine, solo_tier: solo?.tier ?? null, solo_rank: solo?.rank ?? null, solo_lp: solo?.leaguePoints ?? null, updated_at: new Date().toISOString(),
+  })), "puuid,champion_id", true);
+}
 const routes = {
 
   async validate(q, key) {
@@ -212,6 +247,8 @@ Deno.serve(async (req) => {
     if (!fn) return json(404, { error: "없는 API입니다." });
     const key = (req.headers.get("x-riot-key") || "").trim() || (await loadKey()).key;
     const out = await fn(Object.fromEntries(u.searchParams), key);
+    if (name === "match") bg(collectMatch(plat(u.searchParams.get("platform") || "kr"), out));
+    else if (name === "profile") bg(collectMastery((out as any).platform || plat(u.searchParams.get("platform") || "kr"), out));
     /* 끝난 매치는 바뀌지 않으므로 브라우저에 오래 캐시, 랭킹/로테이션은 짧게 */
     const cc = name === "match" || name === "account" ? "public, max-age=2592000, immutable" : name === "ranking" || name === "rotation" ? "public, max-age=120" : "no-store";
     return json(200, out, cc);
