@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Owen.gg - 리그 오브 레전드 전적 검색</title>
 <link rel="icon" type="image/webp" href="logo.webp">
+<link rel="preconnect" href="https://ddragon.leagueoflegends.com" crossorigin>
+<link rel="preconnect" href="https://crrsswrrdpzmdlrgkfoi.supabase.co" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <style>
 :root{--bg:#080b12;--bg2:#0d121c;--card:#111725;--card2:#161e2f;--line:#222b3e;--line2:#2b3650;--text:#e8ebf2;--sub:#8e97ab;--mute:#5d667b;--gold:#c8aa6e;--gold2:#f0d28c;--teal:#0ac8b9;--win:#3d7bff;--winbg:linear-gradient(90deg,rgba(61,123,255,.16),rgba(61,123,255,.05));--lose:#ef4561;--losebg:linear-gradient(90deg,rgba(239,69,97,.16),rgba(239,69,97,.05));--remake:#6b7280;--r:16px}
@@ -180,7 +183,7 @@ img{display:block}
 .pb small{font-size:10px;color:var(--mute)}
 
 /* match */
-.match{display:grid;grid-template-columns:112px 1fr 230px 40px;align-items:stretch;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.05);position:relative;transition:transform .15s,border-color .15s;cursor:pointer;animation:rise .35s both}
+.match{display:grid;grid-template-columns:112px 1fr 230px 40px;align-items:stretch;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.05);position:relative;transition:transform .15s,border-color .15s;cursor:pointer;animation:rise .16s both}
 .match:hover{border-color:rgba(255,255,255,.14)}
 .match.win{background:var(--winbg),var(--card)}
 .match.lose{background:var(--losebg),var(--card)}
@@ -510,10 +513,20 @@ const ICON = {
 /* ================= Data Dragon ================= */
 const DD = { v: '', champs: {}, champList: [], spells: {}, runes: {}, styles: [], items: {}, legend: [], boots: [] };
 const CDN = () => `https://ddragon.leagueoflegends.com/cdn/${DD.v}`;
+/* 게임 데이터는 한 번 받으면 브라우저에 저장해 두고 바로 사용 (새 패치는 뒤에서 확인 후 갱신) */
 async function loadDD() {
+  const c = LS.get('dd3', null);
+  if (c && c.v && c.champList) {
+    Object.assign(DD, c); DD.champs = {}; for (const ch of DD.champList) DD.champs[ch.key] = ch;
+    fetch('https://ddragon.leagueoflegends.com/api/versions.json').then(r => r.json()).then(vs => { if (vs[0] !== c.v) fetchDD(vs[0]).catch(() => { }); }).catch(() => { });
+    return;
+  }
   const vs = await (await fetch('https://ddragon.leagueoflegends.com/api/versions.json')).json();
-  DD.v = vs[0];
-  const base = `${CDN()}/data/ko_KR/`;
+  const d = await fetchDD(vs[0]); Object.assign(DD, d); DD.champs = {}; for (const ch of DD.champList) DD.champs[ch.key] = ch;
+}
+async function fetchDD(v) {
+  const DD = { v, champs: {}, champList: [], spells: {}, runes: {}, styles: [], items: {}, legend: [], boots: [] };
+  const base = `https://ddragon.leagueoflegends.com/cdn/${v}/data/ko_KR/`;
   const [c, s, r, i] = await Promise.all(['champion.json', 'summoner.json', 'runesReforged.json', 'item.json'].map(f => fetch(base + f).then(x => x.json())));
   for (const k in c.data) { const ch = c.data[k]; DD.champs[ch.key] = ch; }
   DD.champList = Object.values(c.data);
@@ -523,6 +536,14 @@ async function loadDD() {
   DD.items = i.data;
   DD.legend = Object.entries(i.data).filter(([id, it]) => it.gold && it.gold.purchasable && it.gold.total >= 2500 && !it.into && it.maps && it.maps['11'] && !it.requiredChampion && !it.requiredAlly && +id < 10000).map(([id]) => +id);
   DD.boots = [3006, 3009, 3020, 3047, 3111, 3158].filter(id => i.data[id]);
+  /* 저장용으로 필요한 필드만 남김 */
+  DD.champList = DD.champList.map(ch => ({ id: ch.id, key: ch.key, name: ch.name, title: ch.title, image: { full: ch.image.full } }));
+  for (const k in DD.spells) { const sp = DD.spells[k]; DD.spells[k] = { key: sp.key, name: sp.name, description: strip(sp.description).slice(0, 200), image: { full: sp.image.full } }; }
+  DD.styles = DD.styles.map(st => ({ id: st.id, name: st.name, icon: st.icon, slots: st.slots.map(sl => ({ runes: sl.runes.map(p => ({ id: p.id, name: p.name, icon: p.icon })) })) }));
+  const it2 = {}; for (const id in DD.items) { const it = DD.items[id]; it2[id] = { name: it.name, plaintext: it.plaintext, description: strip(it.description).slice(0, 140), gold: it.gold ? { total: it.gold.total } : undefined }; } DD.items = it2;
+  const out = { v, champList: DD.champList, spells: DD.spells, runes: DD.runes, styles: DD.styles, items: DD.items, legend: DD.legend, boots: DD.boots };
+  try { LS.set('dd3', out); } catch { }
+  return out;
 }
 const strip = s => String(s || '').replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
 const champ = id => DD.champs[id];
@@ -545,6 +566,19 @@ const IS_LOCAL = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
 const CLOUD = 'https://crrsswrrdpzmdlrgkfoi.supabase.co/functions/v1/owen-riot/';
 const API_BASE = IS_LOCAL ? '/api/' : CLOUD;
 const MCACHE = new Map(); /* 같은 매치는 한 번만 받기 */
+/* 브라우저 저장소(IndexedDB) 캐시: 끝난 매치는 영구 보관, 프로필·매치 목록은 먼저 보여주고 뒤에서 최신화 */
+const IDB = (() => {
+  let dbp = null;
+  const open = () => dbp || (dbp = new Promise(res => { try { const r = indexedDB.open('owen-gg', 1); r.onupgradeneeded = () => r.result.createObjectStore('kv'); r.onsuccess = () => res(r.result); r.onerror = () => res(null); } catch { res(null); } }));
+  const run = async (mode, fn) => { const db = await open(); if (!db) return undefined; return new Promise(res => { try { const t = db.transaction('kv', mode), q = fn(t.objectStore('kv')); t.oncomplete = () => res(q ? q.result : undefined); t.onerror = t.onabort = () => res(undefined); } catch { res(undefined); } }); };
+  return {
+    get: async (k, maxAge) => { const c = await run('readonly', s => s.get(k)); return c && (!maxAge || Date.now() - c.t < maxAge) ? c.v : null; },
+    set: (k, v) => run('readwrite', s => { s.put({ t: Date.now(), v }, k); }),
+    prune() { if (Date.now() - LS.get('pruned', 0) < 864e5) return; LS.set('pruned', Date.now()); run('readwrite', s => { const c = s.openCursor(); c.onsuccess = () => { const cur = c.result; if (!cur) return; if (Date.now() - (cur.value?.t || 0) > (String(cur.key).startsWith('m:') ? 45 : 7) * 864e5) cur.delete(); cur.continue(); }; return null; }); },
+  };
+})();
+const pkey = (pf, n, t) => `p:${pf}:${String(n + '#' + t).toLowerCase()}`;
+const PUU = { get: (pf, n, t) => LS.get('puu', {})[pkey(pf, n, t)], set(pf, n, t, id) { const m = LS.get('puu', {}); m[pkey(pf, n, t)] = id; const ks = Object.keys(m); if (ks.length > 300) delete m[ks[0]]; LS.set('puu', m); } };
 const ownerHdr = () => ({ 'x-owner-token': LS.get('owner', '') });
 const API = {
   key: () => LS.get('key', ''),
@@ -559,8 +593,10 @@ const API = {
 };
 async function checkServer() {
   if (location.protocol === 'file:') { serverOK = false; return; }
-  try { const s = await API.get('status'); serverOK = true; hasServerKey = s.hasServerKey; SRV = s; } catch { serverOK = false; SRV = null; }
+  try { const s = await API.get('status'); serverOK = true; hasServerKey = s.hasServerKey; SRV = s; LS.set('srv', { ok: true, k: s.hasServerKey }); } catch { serverOK = false; SRV = null; LS.set('srv', { ok: false }); }
 }
+/* 지난 방문 때의 서버 상태로 먼저 판단해서 기다리지 않고 바로 화면 표시 */
+(() => { const c = LS.get('srv', null); if (c && location.protocol !== 'file:') { serverOK = c.ok ? true : null; hasServerKey = !!c.k; } })();
 const canLive = () => serverOK && (hasServerKey || !!API.key());
 
 /* ================= 개발 키 자동 적용 ================= */
@@ -626,9 +662,9 @@ const KeyUI = {
 
 const enc = encodeURIComponent;
 const Live = {
-  profile: (pf, n, t, fresh) => API.get(`profile?platform=${pf}&name=${enc(n)}&tag=${enc(t)}${fresh ? '&fresh=1' : ''}`),
+  profile: (pf, n, t, fresh) => API.get(`profile?platform=${pf}&name=${enc(n)}&tag=${enc(t)}${fresh ? '&fresh=1' : ''}`).then(d => { IDB.set(pkey(pf, n, t), d); if (d?.account?.puuid) PUU.set(pf, n, t, d.account.puuid); return d; }),
   matchIds: (pf, puuid, start, count, queue, fresh) => API.get(`matches?platform=${pf}&puuid=${enc(puuid)}&start=${start}&count=${count}${queue ? '&queue=' + queue : ''}${fresh ? '&fresh=1' : ''}`),
-  match: (pf, id) => (MCACHE.get(id) || (MCACHE.set(id, API.get(`match?platform=${pf}&id=${enc(id)}`).catch(e => { MCACHE.delete(id); throw e; })), MCACHE.get(id))),
+  match: (pf, id) => (MCACHE.get(id) || (MCACHE.set(id, IDB.get('m:' + id).then(c => c || API.get(`match?platform=${pf}&id=${enc(id)}`).then(d => { if (d?.info) IDB.set('m:' + id, d); return d; })).catch(e => { MCACHE.delete(id); throw e; })), MCACHE.get(id))),
   live: (pf, puuid) => API.get(`live?platform=${pf}&puuid=${enc(puuid)}`),
   ranking: (pf, queue, tier) => API.get(`ranking?platform=${pf}&queue=${queue}&tier=${tier}`),
   account: (pf, puuid) => API.get(`account?platform=${pf}&puuid=${enc(puuid)}`),
@@ -642,7 +678,7 @@ const Demo = (() => {
   const hash = s => { let h = 2166136261; for (const c of s) { h ^= c.codePointAt(0); h = Math.imul(h, 16777619); } return h >>> 0; };
   const shuffle = (a, r) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
   const pick = (a, r) => a[Math.floor(r() * a.length)];
-  const delay = (v, ms = 200 + Math.random() * 300) => new Promise(res => setTimeout(() => res(structuredClone(v)), ms));
+  const delay = v => Promise.resolve(structuredClone(v)); /* 데모도 지연 없이 바로 */
   const split = puuid => { const s = puuid.slice(5), i = s.lastIndexOf('#'); return [s.slice(0, i), s.slice(i + 1)]; };
   const rname = r => pick(NAMES, r) + (r() < .4 ? Math.floor(r() * 99) : '');
   const rtag = r => r() < .5 ? 'KR1' : String(1000 + Math.floor(r() * 9000));
@@ -720,7 +756,7 @@ const Demo = (() => {
       const used = new Set(); const entries = Array.from({ length: 200 }, (_, i) => { let nm; do { nm = rname(r) } while (used.has(nm) && used.size < 2000); used.add(nm); const w = 150 + Math.floor(r() * 250); return { puuid: `demo:${nm}#${rtag(r)}`, leaguePoints: Math.round(base * (1 - i / 260) + r() * 20), wins: w, losses: Math.round(w * (.7 + r() * .3)), hotStreak: r() < .2 }; }).sort((a, b) => b.leaguePoints - a.leaguePoints);
       return delay({ tier: tier.toUpperCase(), queue, entries });
     },
-    account(pf, puuid) { const [g, t] = split(puuid); return delay({ puuid, gameName: g, tagLine: t }, 40); },
+    account(pf, puuid) { const [g, t] = split(puuid); return delay({ puuid, gameName: g, tagLine: t }); },
     rotation() { const r = rng(Math.floor(Date.now() / 6048e5)); return delay({ freeChampionIds: shuffle(DD.champList, r).slice(0, 20).map(c => +c.key) }); },
   };
 })();
@@ -821,14 +857,30 @@ function rankCard(title, e) {
 }
 
 async function renderProfile(pf, name, tag, fresh) {
-  P.pf = pf; P.queue = ''; P.list = []; P.next = 0; P.done = false; P.loading = false; P.token = Symbol();
-  const tok = P.token;
-  if (!fresh) app.innerHTML = skeletonProfile();
-  if (!isDemo && !serverOK) return renderError({ message: IS_LOCAL ? '로컬 서버가 실행되지 않았습니다. 폴더의 start.bat(또는 node server.js)으로 실행한 뒤 http://localhost:3000 에서 접속하세요.' : '전적 서버에 연결할 수 없습니다. 잠시 후 다시 시도하세요.', status: 0 }, pf, name, tag);
+  P.pf = pf; P.queue = ''; P.list = []; P.next = 0; P.done = false; P.loading = false; P.champ = ''; P.pre = null;
+  const sess = P.sess = Symbol(); P.token = Symbol();
+  /* 1) 저장된 프로필이 있으면 즉시 표시  2) 동시에 최신 정보 요청 → 바뀐 게 있으면 조용히 교체 */
+  const cached = !isDemo && !fresh ? await IDB.get(pkey(pf, name, tag), 7 * 864e5) : null;
+  if (sess !== P.sess) return;
+  if (!fresh && !cached) app.innerHTML = skeletonProfile();
+  if (!isDemo && serverOK === false) return renderError({ message: IS_LOCAL ? '로컬 서버가 실행되지 않았습니다. 폴더의 start.bat(또는 node server.js)으로 실행한 뒤 http://localhost:3000 에서 접속하세요.' : '전적 서버에 연결할 수 없습니다. 잠시 후 다시 시도하세요.', status: 0 }, pf, name, tag);
+  /* 이전에 본 소환사면 프로필과 매치 목록을 동시에 요청 (순서대로 기다리지 않음) */
+  const known = !isDemo && (cached?.account?.puuid || PUU.get(pf, name, tag));
+  const net = src().profile(pf, name, tag, fresh);
+  if (known) { P.pre = { puuid: known, p: src().matchIds(pf, known, 0, 20, '', fresh) }; P.pre.p.catch(() => { }); }
+  if (cached) {
+    drawProfile(cached, pf, fresh);
+    net.then(d2 => { if (sess !== P.sess) return; const sig = x => JSON.stringify([x.summoner?.profileIconId, x.summoner?.summonerLevel, x.account?.gameName, x.account?.tagLine, (x.league || []).map(e => [e.queueType, e.tier, e.rank, e.leaguePoints, e.wins, e.losses])]); if (sig(d2) !== sig(cached)) drawProfile(d2, pf, false, true); else { P.data = d2; saveRecent(d2); } }).catch(() => { });
+    return;
+  }
   let d;
-  try { d = await src().profile(pf, name, tag, fresh); }
-  catch (e) { if (tok === P.token) renderError(e, pf, name, tag); return; }
-  if (tok !== P.token) return;
+  try { d = await net; }
+  catch (e) { if (sess === P.sess) renderError(e, pf, name, tag); return; }
+  if (sess !== P.sess) return;
+  drawProfile(d, pf, fresh);
+}
+function drawProfile(d, pf, fresh, quiet) {
+  P.token = Symbol(); P.loading = false; P.list = []; P.next = 0; P.done = false;
   P.data = d; P.puuid = d.account.puuid; P.updated = Date.now();
   saveRecent(d);
   const solo = d.league.find(e => e.queueType === 'RANKED_SOLO_5x5'), flex = d.league.find(e => e.queueType === 'RANKED_FLEX_SR');
@@ -854,17 +906,24 @@ async function renderProfile(pf, name, tag, fresh) {
       <div id="mlist" style="display:flex;flex-direction:column;gap:10px">${'<div class="sk sk-match"></div>'.repeat(5)}</div>
       <div id="more-wrap"></div>
     </section></div>`;
-  loadMatches(true, fresh);
+  loadMatches(true, fresh, quiet);
 }
 
-async function loadMatches(reset, fresh) {
+async function loadMatches(reset, fresh, quiet) {
   if (P.loading) return; P.loading = true;
   const tok = P.token;
-  if (reset) { P.list = []; P.next = 0; P.done = false; P.champ = ''; $('#mlist').innerHTML = '<div class="sk sk-match"></div>'.repeat(5); }
+  if (reset) { P.list = []; P.next = 0; P.done = false; if (!quiet) { P.champ = ''; $('#mlist').innerHTML = '<div class="sk sk-match"></div>'.repeat(5); } }
   else $('#more-wrap').innerHTML = '<button class="more" disabled><div class="spin" style="width:20px;height:20px;border-width:2px"></div></button>';
   try {
-    const ids = await src().matchIds(P.pf, P.puuid, P.next, 20, P.queue, fresh);
+    /* 매치 목록: 저장본이 있으면 바로 쓰고, 뒤에서 새 게임이 있는지 확인 */
+    const ik = `i:${P.pf}:${P.puuid}:${P.queue}:${P.next}`;
+    const getIds = () => { const pre = P.pre; if (pre && pre.puuid === P.puuid && P.next === 0 && !P.queue) { P.pre = null; return pre.p; } return src().matchIds(P.pf, P.puuid, P.next, 20, P.queue, fresh); };
+    const cIds = !isDemo && !fresh ? await IDB.get(ik, 3 * 864e5) : null;
+    let ids, netIds = null;
+    if (cIds) { ids = cIds; netIds = getIds(); }
+    else { ids = await getIds(); if (!isDemo) IDB.set(ik, ids); }
     if (tok !== P.token) return;
+    if (netIds) netIds.then(x => { IDB.set(ik, x); if (tok !== P.token || !reset || !Array.isArray(x) || x.join() === ids.join()) return; const wait = () => { if (tok !== P.token) return; if (P.loading) return setTimeout(wait, 50); loadMatches(true, false, true); }; wait(); }).catch(() => { });
     /* 매치가 도착하는 순서대로(앞에서부터 이어지는 만큼) 바로 화면에 표시 */
     const got = new Array(ids.length); let shown = 0, first = reset, timer = 0;
     const flush = (final) => {
@@ -1060,7 +1119,7 @@ function matchRow(a, idx) {
   let players = '';
   if (!arena) { const t1 = ps.filter(p => p.teamId === 100), t2 = ps.filter(p => p.teamId === 200); for (let i = 0; i < 5; i++) for (const p of [t1[i], t2[i]]) players += p ? `<div class="mp-row${p.puuid === P.puuid ? ' me' : ''}"><img src="${champImg(p.championId)}" loading="lazy" alt=""><a href="${sumLink(P.pf, pname(p), ptag(p))}" data-tt="${esc(pname(p))}#${esc(ptag(p))}">${esc(pname(p))}</a></div>` : '<div></div>'; }
   const tl = me._t || [], legend = tl.some(id => TBY[id][1] === 'leg');
-  return `<div class="match ${cls}${legend ? ' legend' : ''}" data-cid="${me.championId}" data-mid="${esc(m.metadata.matchId)}" style="animation-delay:${Math.min(idx % 20, 10) * 25}ms">
+  return `<div class="match ${cls}${legend ? ' legend' : ''}" data-cid="${me.championId}" data-mid="${esc(m.metadata.matchId)}">
     <div class="m-meta"><div class="q">${QUEUES[a.q] || '기타'}</div><div data-tt="${new Date(a.end).toLocaleString('ko-KR')}">${ago(a.end)}</div><hr><div class="res">${res}</div><div>${fmtDur(dur)}</div></div>
     <div class="m-main"><div class="m-top"><div class="mch">${cImg(me.championId)}<span>${me.champLevel}</span></div>${ssHTML(me)}
       <div class="kda"><div class="n">${me.kills}<i>/</i><span class="d">${me.deaths}</span><i>/</i>${me.assists}</div><div class="r ${kcls(r)}">${r}${r === 'Perfect' ? '' : ':1'} 평점</div></div>
@@ -1259,9 +1318,14 @@ document.addEventListener('mousemove', e => { if (!tip.classList.contains('on'))
 /* ================= boot ================= */
 (async () => {
   app.innerHTML = '<div class="center" style="padding-top:30vh"><div class="spin"></div><div class="sub" style="margin-top:14px">게임 데이터 불러오는 중...</div></div>';
-  try { await Promise.all([loadDD(), checkServer()]); KeyUI.init(); }
+  const srv = checkServer();
+  const hadSrv = serverOK !== null;
+  try { await (hadSrv ? loadDD() : Promise.all([loadDD(), srv])); }
   catch { app.innerHTML = '<div class="card err"><div class="ic">!</div><h2>게임 데이터를 불러오지 못했어요</h2><p>인터넷 연결을 확인한 뒤 새로고침하세요.</p></div>'; return; }
   route();
+  const prevOK = serverOK;
+  srv.then(() => { KeyUI.init(); if (hadSrv && serverOK !== prevOK && !location.hash.slice(2)) renderHome(); });
+  setTimeout(() => IDB.prune(), 4000);
 })();
 </script>
 </body>
