@@ -97,6 +97,11 @@ function plat(p) {
 }
 
 
+const KEEP_P = new Set(["assists","baronKills","champLevel","championId","championName","championTransform","damageDealtToBuildings","damageDealtToObjectives","deaths","detectorWardsPlaced","doubleKills","dragonKills","firstBloodKill","gameEndedInEarlySurrender","goldEarned","goldSpent","individualPosition","inhibitorKills","item0","item1","item2","item3","item4","item5","item6","killingSprees","kills","lane","largestKillingSpree","largestMultiKill","magicDamageDealtToChampions","neutralMinionsKilled","pentaKills","perks","physicalDamageDealtToChampions","placement","playerAugment1","playerAugment2","playerAugment3","playerAugment4","playerSubteamId","profileIcon","puuid","quadraKills","riotIdGameName","riotIdTagline","role","subteamPlacement","summoner1Casts","summoner1Id","summoner2Casts","summoner2Id","summonerLevel","summonerName","teamId","teamPosition","timePlayed","totalDamageDealt","totalDamageDealtToChampions","totalDamageShieldedOnTeammates","totalDamageTaken","totalHeal","totalHealsOnTeammates","totalMinionsKilled","totalTimeSpentDead","tripleKills","trueDamageDealtToChampions","turretKills","visionScore","visionWardsBoughtInGame","wardsKilled","wardsPlaced","win"]);
+function slimMatch(m: any) {
+  if (!m || !m.info) return m;
+  return { metadata: { matchId: m.metadata?.matchId }, info: { ...m.info, tournamentCode: undefined, participants: (m.info.participants || []).map((p) => { const o: Record<string, unknown> = {}; for (const k in p) if (KEEP_P.has(k)) o[k] = p[k]; return o; }) } };
+}
 const routes = {
 
   async validate(q, key) {
@@ -143,7 +148,7 @@ const routes = {
   async match(q, key) {
     const pf = plat(q.platform);
     if (!/^[A-Z0-9]+_\d+$/.test(q.id || '')) throw new ApiError(400, '잘못된 매치 ID');
-    return riot(`https://${REGION[pf]}.api.riotgames.com/lol/match/v5/matches/${q.id}`, key, Infinity);
+    return slimMatch(await riot(`https://${REGION[pf]}.api.riotgames.com/lol/match/v5/matches/${q.id}`, key, Infinity));
   },
 
   async live(q, key) {
@@ -179,7 +184,7 @@ const routes = {
 
 Deno.serve(async (req) => {
   const H = cors(req);
-  const json = (s: number, b: unknown) => new Response(JSON.stringify(b), { status: s, headers: { ...H, "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" } });
+  const json = (s: number, b: unknown, cc = "no-store") => new Response(JSON.stringify(b), { status: s, headers: { ...H, "Content-Type": "application/json; charset=utf-8", "Cache-Control": cc } });
   if (req.method === "OPTIONS") return new Response("ok", { headers: H });
   const u = new URL(req.url);
   const name = u.pathname.replace(/^.*\/owen-riot\/?/, "");
@@ -206,7 +211,10 @@ Deno.serve(async (req) => {
     const fn = (routes as Record<string, (q: Record<string, string>, key: string) => Promise<unknown>>)[name];
     if (!fn) return json(404, { error: "없는 API입니다." });
     const key = (req.headers.get("x-riot-key") || "").trim() || (await loadKey()).key;
-    return json(200, await fn(Object.fromEntries(u.searchParams), key));
+    const out = await fn(Object.fromEntries(u.searchParams), key);
+    /* 끝난 매치는 바뀌지 않으므로 브라우저에 오래 캐시, 랭킹/로테이션은 짧게 */
+    const cc = name === "match" || name === "account" ? "public, max-age=2592000, immutable" : name === "ranking" || name === "rotation" ? "public, max-age=120" : "no-store";
+    return json(200, out, cc);
   } catch (e) {
     const st = (e as { status?: number }).status || 500;
     if (st === 401 || st === 403) vc = null;
