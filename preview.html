@@ -372,7 +372,7 @@ footer{border-top:1px solid var(--line);padding:26px 20px;text-align:center;colo
 @keyframes shine{0%{left:-60%}55%,100%{left:130%}}
 .ttl.epic{background:linear-gradient(135deg,#a77bff,#6a43e0);color:#fff;box-shadow:0 0 12px rgba(140,90,255,.3)}
 .ttl.rare{background:rgba(10,200,185,.12);color:#4fe6d6;box-shadow:inset 0 0 0 1px rgba(10,200,185,.38)}
-.ttl.more{background:rgba(255,255,255,.07);color:var(--sub);padding:3px 8px}
+.ttl.tplus{background:rgba(255,255,255,.07);color:var(--sub);padding:3px 8px}
 .ttl.sm{font-size:10px;padding:2px 7px 2px 5px;margin-top:3px}
 .ttl.sm svg{width:10px;height:10px}
 .m-titles{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
@@ -952,7 +952,7 @@ function titleChip(id, sm) { const t = TBY[id]; if (!t) return ''; return `<span
 function titlesRow(ids) {
   if (!ids || !ids.length) return '';
   const extra = ids.slice(2).map(id => TBY[id][2]).join(', ');
-  return `<div class="m-titles">${ids.slice(0, 2).map(id => titleChip(id)).join('')}${ids.length > 2 ? `<span class="ttl more" data-tt="추가 칭호" data-tb="${extra}">+${ids.length - 2}</span>` : ''}</div>`;
+  return `<div class="m-titles">${ids.slice(0, 2).map(id => titleChip(id)).join('')}${ids.length > 2 ? `<span class="ttl tplus" data-tt="추가 칭호" data-tb="${extra}">+${ids.length - 2}</span>` : ''}</div>`;
 }
 function titleCount(valid) { const c = {}; for (const a of valid) for (const id of a.me._t || []) c[id] = (c[id] || 0) + 1; return Object.entries(c).sort((x, y) => TORD[TBY[x[0]][1]] - TORD[TBY[y[0]][1]] || y[1] - x[1]); }
 function renderTitles(valid) {
@@ -996,6 +996,7 @@ function styleTags(valid) {
   const gc = groupChamps(valid); if (gc[0] && gc[0].n / n >= .45 && n >= 5) tags.push(champName(gc[0].id) + ' 장인'); else if (gc.length >= Math.max(6, n * .6)) tags.push('넓은 챔프폭');
   if (pct(valid.filter(a => a.me.win).length, n) >= 60 && n >= 5) tags.push('승리 보증수표');
   if (valid.filter(a => (a.me._t || []).some(id => TBY[id][1] === 'leg')).length >= 2) tags.push('전설 제조기');
+  if (tags.length < 2 && mp && !tags.some(t => t.endsWith('주력'))) tags.unshift('주 포지션 ' + { TOP: '탑', JUNGLE: '정글', MIDDLE: '미드', BOTTOM: '원딜', UTILITY: '서폿' }[mp[0]]);
   return tags.slice(0, 6);
 }
 function applyCF() {
