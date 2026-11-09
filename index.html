@@ -1758,6 +1758,7 @@ async function renderChampions(key) {
   if (key) return renderChampDetail(key);
   const tok = P.sess = Symbol();
   app.innerHTML = `<div class="wrap pg">${pageHead('챔피언 분석', '<span id="ca-meta">통계 불러오는 중…</span>', `<input class="ipt" id="ca-q" placeholder="챔피언 검색" value="${esc(CA.q)}">`)}
+    <div class="card" style="margin-bottom:14px"><div class="cpick" id="ca-pick">${[...DD.champList].sort((a, b) => a.name.localeCompare(b.name, 'ko')).map(x => `<a href="#/champions/${x.key}" data-nm="${esc(x.name)} ${esc(x.id.toLowerCase())}"${CA.q && !(x.name + ' ' + x.id.toLowerCase()).includes(CA.q.toLowerCase()) ? ' hidden' : ''}><img src="${champImg(+x.key)}" loading="lazy" alt="">${esc(x.name)}</a>`).join('')}</div></div>
     <div class="card"><div class="qtabs" id="ca-pos">${POS_ALL.map(([k, l]) => `<button class="qtab${CA.pos === k ? ' on' : ''}" data-cpos="${k}">${l}</button>`).join('')}</div><div id="ca-body"><div class="center"><div class="spin"></div></div></div></div>
     <div class="note">Owen.gg에서 조회된 소환사들의 실제 경기(솔로·자유랭크, 일반, 빠른 대전)를 모아 계산해요. 경기가 쌓일수록 정확해지고, 판수가 적은 챔피언은 흐리게 표시돼요.</div></div>`;
   try { const d = await champData(); if (tok !== P.sess) return; CA.d = d; drawChampTable(); }
@@ -1815,8 +1816,7 @@ function masterTable(rows, showChamp, stats = {}) {
 async function renderMasters(key) {
   const c = key ? champByKey(key) : null, cid = c ? +c.key : 0; const tok = P.sess = Symbol();
   const list = [...DD.champList].sort((a, b) => a.name.localeCompare(b.name, 'ko'));
-  app.innerHTML = `<div class="wrap pg">${pageHead(c ? `${esc(c.name)} 장인 랭킹` : '장인 랭킹', c ? '이 챔피언 숙련도 점수가 가장 높은 소환사' : '챔피언을 고르면 그 챔피언의 장인 순위를 볼 수 있어요. 아래는 전체 숙련도 TOP 50이에요.', `<input class="ipt" id="ms-q" placeholder="챔피언 검색">`)}
-    <div class="card" style="margin-bottom:14px"><div class="cpick" id="ms-pick">${list.map(x => `<a href="#/masters/${x.key}" class="${+x.key === cid ? 'on' : ''}" data-nm="${esc(x.name)} ${esc(x.id.toLowerCase())}"><img src="${champImg(+x.key)}" loading="lazy" alt="">${esc(x.name)}</a>`).join('')}</div></div>
+  app.innerHTML = `<div class="wrap pg">${pageHead(c ? `${esc(c.name)} 장인 랭킹` : '장인 랭킹', c ? '이 챔피언 숙련도 점수가 가장 높은 소환사' : '챔피언 이름을 입력하면 그 챔피언의 장인 순위를 볼 수 있어요. 아래는 전체 숙련도 TOP 50이에요.', `${c ? '<a class="btn" href="#/masters">전체 보기</a>' : ''}<input class="ipt" id="ms-q" list="ms-dl" placeholder="챔피언 이름으로 찾기" autocomplete="off"><datalist id="ms-dl">${list.map(x => `<option value="${esc(x.name)}">`).join('')}</datalist>`)}
     <div class="card" id="ms-body"><div class="center"><div class="spin"></div></div></div>
     <div class="note">Owen.gg에서 검색된 소환사의 챔피언 숙련도(상위 10개) 기준이에요. 내 기록을 올리려면 내 소환사를 한 번 검색하면 돼요.</div></div>`;
   try {
@@ -2101,7 +2101,8 @@ document.addEventListener('click', async e => {
 });
 document.addEventListener('input', e => {
   if (e.target.id === 'ca-q') { CA.q = e.target.value.trim(); drawChampTable(); }
-  if (e.target.id === 'ms-q') { const q = e.target.value.trim().toLowerCase(); $$('#ms-pick a').forEach(a => a.hidden = !!q && !a.dataset.nm.toLowerCase().includes(q)); }
+  if (e.target.id === 'ms-q') { const q = e.target.value.trim(); const c = DD.champList.find(x => x.name === q); if (c) location.hash = '#/masters/' + c.key; }
+  if (e.target.id === 'ca-q') { const q = e.target.value.trim().toLowerCase(); $$('#ca-pick a').forEach(a => a.hidden = !!q && !a.dataset.nm.toLowerCase().includes(q)); }
 });
 document.addEventListener('keydown', e => { if (e.target.id === 'ms-txt' && e.key === 'Enter' && (e.ctrlKey || e.metaKey)) runMulti(); });
 document.addEventListener('change', e => {
