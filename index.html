@@ -127,6 +127,17 @@ img{display:block}
 .rotw .rot img{width:34px;height:34px;border-radius:9px;flex:none}
 .demo-link{margin-top:16px;font-size:12.5px;color:#aab3c4;text-shadow:0 1px 8px rgba(0,0,0,.9);transition:color .15s}
 .demo-link:hover{color:var(--gold2)}
+/* home v3: 최소 구성 */
+.hero-in.mini{width:min(640px,100%);margin-top:-6vh}
+.hero-in.mini h1{font-size:clamp(52px,9vw,96px);margin-bottom:34px}
+.hero-in.mini .sform.big{height:60px;border-radius:30px;background:rgba(10,10,20,.55);border-color:rgba(255,255,255,.12)}
+.hero-in.mini .sform.big select{border-right-color:rgba(255,255,255,.1)}
+.mini-rec{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:18px}
+.mini-rec a{font-size:12.5px;font-weight:700;color:#cfd3e6;padding:6px 12px;border-radius:20px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(8px);transition:.15s}
+.mini-rec a span{color:#8c90a8;font-weight:500;margin-left:2px}
+.mini-rec a:hover{background:rgba(255,255,255,.12);color:#fff}
+.hero:has(.hero-in.mini) .hero-bg:after{background:radial-gradient(ellipse 50% 45% at 50% 45%,rgba(6,6,14,.35),transparent 70%),linear-gradient(180deg,rgba(8,11,18,0) 70%,var(--bg))!important}
+.hero:has(.hero-in.mini) .hero-bg video.on{opacity:1}
 
 /* cards */
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
@@ -753,8 +764,8 @@ function heroVideo(v, bg) {
   if (!v) return; const c = navigator.connection || {};
   if (matchMedia('(prefers-reduced-motion: reduce)').matches || c.saveData || /2g/.test(c.effectiveType || '')) return;
   const k = matchMedia('(max-aspect-ratio: 1/1)').matches ? 'mobile' : 'desktop';
-  v.poster = 'bg-video-poster.webp';
-  v.innerHTML = '<source src="bg-video.mp4" type="video/mp4">';
+  v.poster = 'bg-video2-poster.webp';
+  v.innerHTML = '<source src="bg-video2.mp4" type="video/mp4">';
   v.addEventListener('playing', () => { v.classList.add('on'); bg.classList.add('vid-on'); clearInterval(heroTimer); }, { once: true });
   const go = () => { v.preload = 'auto'; v.load(); const p = v.play(); if (p && p.catch) p.catch(() => {}); };
   (window.requestIdleCallback || ((f) => setTimeout(f, 150)))(go, { timeout: 1200 });
@@ -1112,17 +1123,11 @@ function renderHome() {
   const QK = [['#/spectate', '관전하기', '지금 진행 중인 랭커 게임', 'live'], ['#/champions', '챔피언 분석', '티어 · 승률 · 아이템', 'chart'], ['#/ranking', '랭킹', '챌린저 · 명예의 전당', 'trophy'], ['#/multi', '멀티서치', '로비 채팅 붙여넣기', 'users']];
   const QI = { live: ICON.live, chart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>', trophy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>', users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"/></svg>' };
   app.innerHTML = `<section class="hero"><div class="hero-bg" id="hero-bg"><div></div><div></div><video id="hero-vid" muted loop playsinline autoplay preload="none" disablepictureinpicture disableremoteplayback aria-hidden="true" tabindex="-1"></video></div>
-    <div class="hero-in">
-      <div class="eyebrow"><span class="ldot"></span>실시간 전적 · 관전 · 챔피언 분석</div>
+    <div class="hero-in mini">
       <h1><b>Owen.gg</b></h1>
-      <p class="tag">소환사 이름#태그 하나로 전적, 티어, 인게임 정보를 한 번에</p>
       ${searchForm(true)}
-      <div class="hero-hint"><kbd>이름#태그</kbd> 형식으로 검색하세요 · 태그를 생략하면 #${DEFAULT_TAG[curPf]}</div>
       ${notice}
-      ${cur ? `<div class="hp"><div class="hp-tabs">${tabs.map(t => `<button data-hp="${t[0]}" class="${t === cur ? 'on' : ''}">${t[1]} <span>${t[2].length}</span></button>`).join('')}</div><div class="chips" id="hp-chips">${cur[2].map(r => chip(r, cur[0])).join('')}</div></div>` : ''}
-      <div class="quick">${QK.map(([h, t, d, i]) => `<a class="qk" href="${h}"><i>${QI[i]}</i><b>${t}</b><span>${d}</span></a>`).join('')}</div>
-      <div class="rotw" id="rot-row" hidden><h3>이번 주<br>무료 챔피언</h3><div class="rot" id="rot"></div></div>
-      <a class="demo-link" href="#/demo/kr/${enc('밤의파수꾼')}-KR1">API 키 없이 데모 프로필 둘러보기 →</a>
+      ${rec.length ? `<div class="mini-rec">${rec.slice(0, 5).map(r => `<a href="#/${r.demo ? 'demo' : 'summoner'}/${r.pf}/${enc(r.name)}-${enc(r.tag)}">${esc(r.name)}<span>#${esc(r.tag)}</span></a>`).join('')}</div>` : ''}
     </div>
   </section>`;
   HOME_TABS = Object.fromEntries(tabs.map(t => [t[0], t[2]])); HOME_CHIP = chip;
