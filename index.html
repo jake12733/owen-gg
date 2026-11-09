@@ -498,6 +498,7 @@ let serverOK = null, hasServerKey = false, SRV = null;
 const IS_LOCAL = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
 const CLOUD = 'https://crrsswrrdpzmdlrgkfoi.supabase.co/functions/v1/owen-riot/';
 const API_BASE = IS_LOCAL ? '/api/' : CLOUD;
+const MCACHE = new Map(); /* 같은 매치는 한 번만 받기 */
 const ownerHdr = () => ({ 'x-owner-token': LS.get('owner', '') });
 const API = {
   key: () => LS.get('key', ''),
@@ -581,7 +582,7 @@ const enc = encodeURIComponent;
 const Live = {
   profile: (pf, n, t, fresh) => API.get(`profile?platform=${pf}&name=${enc(n)}&tag=${enc(t)}${fresh ? '&fresh=1' : ''}`),
   matchIds: (pf, puuid, start, count, queue, fresh) => API.get(`matches?platform=${pf}&puuid=${enc(puuid)}&start=${start}&count=${count}${queue ? '&queue=' + queue : ''}${fresh ? '&fresh=1' : ''}`),
-  match: (pf, id) => API.get(`match?platform=${pf}&id=${enc(id)}`),
+  match: (pf, id) => (MCACHE.get(id) || (MCACHE.set(id, API.get(`match?platform=${pf}&id=${enc(id)}`).catch(e => { MCACHE.delete(id); throw e; })), MCACHE.get(id))),
   live: (pf, puuid) => API.get(`live?platform=${pf}&puuid=${enc(puuid)}`),
   ranking: (pf, queue, tier) => API.get(`ranking?platform=${pf}&queue=${queue}&tier=${tier}`),
   account: (pf, puuid) => API.get(`account?platform=${pf}&puuid=${enc(puuid)}`),
@@ -811,11 +812,21 @@ async function loadMatches(reset, fresh) {
   else $('#more-wrap').innerHTML = '<button class="more" disabled><div class="spin" style="width:20px;height:20px;border-width:2px"></div></button>';
   try {
     const ids = await src().matchIds(P.pf, P.puuid, P.next, 20, P.queue, fresh);
-    const ms = await pool(ids, id => src().match(P.pf, id), isDemo ? 8 : 6);
     if (tok !== P.token) return;
-    const an = ms.filter(Boolean).map(m => analyze(m, P.puuid)).filter(Boolean);
-    P.list.push(...an); P.next += ids.length; P.done = ids.length < 20;
-    renderMatches(reset);
+    /* 매치가 도착하는 순서대로(앞에서부터 이어지는 만큼) 바로 화면에 표시 */
+    const got = new Array(ids.length); let shown = 0, first = reset, timer = 0;
+    const flush = (final) => {
+      if (tok !== P.token) return;
+      let n = shown; while (n < ids.length && got[n] !== undefined) n++;
+      if (n === shown && !final) return;
+      P.list.push(...got.slice(shown, n).filter(Boolean).map(m => analyze(m, P.puuid)).filter(Boolean)); shown = n;
+      if (final) { P.next += ids.length; P.done = ids.length < 20; }
+      renderMatches(first); first = false;
+      if (!final) $('#more-wrap').innerHTML = '<div class="center" style="padding:14px"><div class="spin" style="width:22px;height:22px;border-width:2px"></div></div>';
+    };
+    const sched = () => { if (!timer) timer = setTimeout(() => { timer = 0; flush(false); }, 60); };
+    await pool(ids.map((id, i) => [id, i]), async ([id, i]) => { let m = null; try { m = await src().match(P.pf, id); } catch { } got[i] = m || null; if (i === shown || i < 3) sched(); return m; }, isDemo ? 8 : 10);
+    clearTimeout(timer); flush(true);
   } catch (e) {
     if (tok !== P.token) return;
     $('#mlist').innerHTML = `<div class="card"><div class="empty big">${esc(e.message)}</div></div>`;
