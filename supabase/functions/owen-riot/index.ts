@@ -137,7 +137,45 @@ async function collectMastery(pf: string, d: any) {
     riot_name: acc.gameName, riot_tag: acc.tagLine, solo_tier: solo?.tier ?? null, solo_rank: solo?.rank ?? null, solo_lp: solo?.leaguePoints ?? null, updated_at: new Date().toISOString(),
   })), "puuid,champion_id", true);
 }
-const specCursor: Record<string, number> = {};
+/* ---- 관전하기 스캐너: 1분마다(pg_cron) 상위 랭커 일부를 돌아가며 확인 → 찾은 게임은 끝날 때까지 owen_live에 보관 ---- */
+const SCAN_TOKEN = Deno.env.get("SCAN_TOKEN") ?? "";
+async function tierMap(pf: string, key: string) {
+  const ck = 'tiermap:' + pf; const hit = cGet(ck); if (hit) return hit;
+  const m: Record<string, { tier: string; lp: number }> = {};
+  const lists = await Promise.all(['challengerleagues', 'grandmasterleagues', 'masterleagues'].map((t) => riot(`https://${pf}.api.riotgames.com/lol/league/v4/${t}/by-queue/RANKED_SOLO_5x5`, key, 900000).catch(() => null)));
+  for (const l of lists) if (l) for (const e of l.entries || []) m[e.puuid] = { tier: l.tier, lp: e.leaguePoints };
+  cSet(ck, m, 900000); return m;
+}
+const liveRows = (pf: string) => fetch(`${SUPABASE_URL}/rest/v1/owen_live?platform=eq.${pf}&select=game_id,data,updated_at`, { headers: svcH() }).then((r) => r.ok ? r.json() : []).catch(() => []);
+const elapsedMs = (g: any, now: number, upd?: string) => g.gameStartTime > 0 ? now - g.gameStartTime : (g.gameLength || 0) * 1000 + (upd ? now - Date.parse(upd) : 0);
+async function scanLive(pf: string, key: string, n = 18, rechecks = 5) {
+  const tierOf = await tierMap(pf, key), now = Date.now();
+  const cand = Object.entries(tierOf).sort((a, b) => (b[1].tier === 'CHALLENGER' ? 3e5 : b[1].tier === 'GRANDMASTER' ? 2e5 : 1e5) + b[1].lp - ((a[1].tier === 'CHALLENGER' ? 3e5 : a[1].tier === 'GRANDMASTER' ? 2e5 : 1e5) + a[1].lp)).slice(0, 1500).map((e) => e[0]);
+  const active = (pu: string) => riot(`https://${pf}.api.riotgames.com/lol/spectator/v5/active-games/by-summoner/${enc(pu)}`, key, 30000);
+  const rows = await liveRows(pf);
+  const gone: number[] = [], up: any[] = [], busy = new Set<string>();
+  for (const r of rows) { if (elapsedMs(r.data, now, r.updated_at) > 65 * 60000) gone.push(r.game_id); else (r.data.participants || []).forEach((p: any) => busy.add(p.puuid)); }
+  /* 오래된 게임부터 몇 개만 끝났는지 확인 (요청 수 절약) */
+  const old = rows.filter((r: any) => !gone.includes(r.game_id) && elapsedMs(r.data, now, r.updated_at) > 18 * 60000).sort((a: any, b: any) => Date.parse(a.updated_at) - Date.parse(b.updated_at)).slice(0, rechecks);
+  for (const r of old) {
+    const pu = (r.data.participants || []).find((p: any) => p.puuid)?.puuid; if (!pu) { gone.push(r.game_id); continue; }
+    try { const g = await active(pu); if (g?.gameId === r.game_id) up.push(g); else gone.push(r.game_id); }
+    catch (e) { if ((e as { status?: number }).status === 404) gone.push(r.game_id); }
+  }
+  /* 새 게임 찾기: 분 단위로 다음 n명 (상태 저장 없이 순환) */
+  const off = (Math.floor(now / 60000) * n) % Math.max(1, cand.length);
+  const batch = [...cand.slice(off), ...cand.slice(0, off)].filter((pu) => !busy.has(pu)).slice(0, n);
+  let i = 0, found = 0;
+  await Promise.all(Array.from({ length: 3 }, async () => {
+    while (i < batch.length) {
+      const pu = batch[i++]; if (busy.has(pu)) continue;
+      try { const g = await active(pu); if (g?.gameId && g.gameMode !== 'TFT' && !rows.some((r: any) => r.game_id === g.gameId)) { up.push(g); found++; (g.participants || []).forEach((p: any) => busy.add(p.puuid)); } } catch { /* 게임 중 아님 */ }
+    }
+  }));
+  if (gone.length) await fetch(`${SUPABASE_URL}/rest/v1/owen_live?game_id=in.(${gone.join(',')})`, { method: 'DELETE', headers: svcH() }).catch(() => {});
+  if (up.length) await sbInsert('owen_live', up.map((g) => ({ game_id: g.gameId, platform: pf, data: g, updated_at: new Date().toISOString() })), 'game_id', true);
+  return { found, removed: gone.length, total: rows.length - gone.length + found, checked: batch.length };
+}
 const routes = {
 
   async validate(q, key) {
@@ -197,43 +235,18 @@ const routes = {
     }
   },
 
-  /* 관전하기 목록: 챌린저·그마 소환사를 매번 조금씩 돌아가며 확인하고, 찾은 게임은 끝날 때까지 DB에 보관 (60초 캐시) */
+  /* 관전하기 목록: 백그라운드 스캐너(scan)가 DB에 모아 둔 진행 중 게임을 바로 반환 */
   async spectate(q, key) {
     const pf = plat(q.platform || 'kr');
     const ck = 'speclist:' + pf; const hit = cGet(ck); if (hit) return hit;
-    const tierOf: Record<string, { tier: string; lp: number }> = {};
-    const lists = await Promise.all(['challengerleagues', 'grandmasterleagues'].map((t) => riot(`https://${pf}.api.riotgames.com/lol/league/v4/${t}/by-queue/RANKED_SOLO_5x5`, key, 600000).catch(() => null)));
-    for (const l of lists) if (l) for (const e of l.entries || []) tierOf[e.puuid] = { tier: l.tier, lp: e.leaguePoints };
-    const cand = [...(lists[0]?.entries || []), ...(lists[1]?.entries || [])].sort((a, b) => b.leaguePoints - a.leaguePoints).slice(0, 400).map((e) => e.puuid);
-    const active = (pu: string) => riot(`https://${pf}.api.riotgames.com/lol/spectator/v5/active-games/by-summoner/${enc(pu)}`, key, 45000);
-    const stored = await fetch(`${SUPABASE_URL}/rest/v1/owen_live?platform=eq.${pf}&select=game_id,data`, { headers: svcH() }).then((r) => r.ok ? r.json() : []).catch(() => []);
-    const games = new Map<number, any>(), gone: number[] = [], busy = new Set<string>();
-    /* 보관 중인 게임이 아직 진행 중인지 참가자 한 명으로 확인 */
-    await Promise.all(stored.map(async (r: any) => {
-      const g = r.data, pu = (g.participants || []).find((p: any) => p.puuid)?.puuid;
-      const age = Date.now() - (g.gameStartTime || Date.now());
-      if (!pu || age > 70 * 60000) { gone.push(r.game_id); return; }
-      try { const ng = await active(pu); if (ng?.gameId === r.game_id) { games.set(ng.gameId, ng); (ng.participants || []).forEach((p: any) => busy.add(p.puuid)); } else gone.push(r.game_id); }
-      catch (e) { if ((e as { status?: number }).status === 404) gone.push(r.game_id); else { games.set(r.game_id, g); (g.participants || []).forEach((p: any) => busy.add(p.puuid)); } }
-    }));
-    /* 새 게임 찾기: 순서대로 24명씩 */
-    const st = (specCursor[pf] || 0) % Math.max(1, cand.length);
-    const batch = [...cand.slice(st), ...cand.slice(0, st)].filter((pu) => !busy.has(pu)).slice(0, 24);
-    specCursor[pf] = (st + 24) % Math.max(1, cand.length);
-    let i = 0;
-    await Promise.all(Array.from({ length: 4 }, async () => {
-      while (i < batch.length) {
-        const pu = batch[i++]; if (busy.has(pu)) continue;
-        try { const g = await active(pu); if (g?.gameId && g.gameMode !== 'TFT') { games.set(g.gameId, g); (g.participants || []).forEach((p: any) => busy.add(p.puuid)); } } catch { /* 게임 중 아님 */ }
-      }
-    }));
-    const feat = await riot(`https://${pf}.api.riotgames.com/lol/spectator/v5/featured-games`, key, 60000).catch(() => null);
-    for (const g of feat?.gameList || []) if (g.gameMode !== 'TFT' && g.gameId && !games.has(g.gameId)) games.set(g.gameId, g);
-    if (gone.length) await fetch(`${SUPABASE_URL}/rest/v1/owen_live?game_id=in.(${gone.join(',')})`, { method: 'DELETE', headers: svcH() }).catch(() => {});
-    if (games.size) await sbInsert('owen_live', [...games.values()].map((g) => ({ game_id: g.gameId, platform: pf, data: g, updated_at: new Date().toISOString() })), 'game_id', true);
-    const score = (g: any) => (g.participants || []).reduce((s: number, p: any) => s + (tierOf[p.puuid] ? (tierOf[p.puuid].tier === 'CHALLENGER' ? 3 : 2) + tierOf[p.puuid].lp / 2000 : 0), 0);
-    const out = { platform: pf, updated: Date.now(), games: [...games.values()].map((g) => ({ ...g, participants: (g.participants || []).map((p: any) => ({ ...p, tier: tierOf[p.puuid] || null })) })).sort((a, b) => score(b) - score(a)) };
-    cSet(ck, out, 60000);
+    const tierOf = await tierMap(pf, key);
+    let rows = await liveRows(pf);
+    if (!rows.length) { await scanLive(pf, key, 16, 0); rows = await liveRows(pf); }
+    const now = Date.now();
+    const games = rows.map((r: any) => r.data).filter((g: any) => elapsedMs(g, now) < 65 * 60000);
+    const score = (g: any) => (g.participants || []).reduce((s: number, p: any) => s + (tierOf[p.puuid] ? (tierOf[p.puuid].tier === 'CHALLENGER' ? 3 : tierOf[p.puuid].tier === 'GRANDMASTER' ? 2 : 1) + tierOf[p.puuid].lp / 2000 : 0), 0);
+    const out = { platform: pf, updated: now, games: games.map((g: any) => ({ ...g, participants: (g.participants || []).map((p: any) => ({ ...p, tier: tierOf[p.puuid] || null })) })).sort((a: any, b: any) => score(b) - score(a)) };
+    cSet(ck, out, 20000);
     return out;
   },
 
@@ -283,6 +296,12 @@ Deno.serve(async (req) => {
       const appliedAt = prev.key === k && prev.appliedAt ? prev.appliedAt : Date.now();
       await saveKey(k, appliedAt); vc = { key: k, v: true, at: Date.now() }; cache.clear();
       return json(200, { ok: true, appliedAt, expiresAt: appliedAt + 86400000, keyTail: k.slice(-4) });
+    }
+    if (name === "scan") {
+      if (!SCAN_TOKEN || req.headers.get("x-scan-token") !== SCAN_TOKEN) return json(401, { error: "unauthorized" });
+      const pf = plat(u.searchParams.get("platform") || "kr");
+      const n = Math.min(60, Math.max(1, parseInt(u.searchParams.get("n") || "18")));
+      return json(200, await scanLive(pf, (await loadKey()).key, n, Math.min(10, parseInt(u.searchParams.get("re") || "5"))));
     }
     const fn = (routes as Record<string, (q: Record<string, string>, key: string) => Promise<unknown>>)[name];
     if (!fn) return json(404, { error: "없는 API입니다." });
