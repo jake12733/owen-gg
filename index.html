@@ -494,12 +494,17 @@ function ring(p, size = 72, sw = 8) { const r = (size - sw) / 2, c = 2 * Math.PI
 
 /* ================= API ================= */
 let serverOK = null, hasServerKey = false, SRV = null;
+/* 로컬(localhost)에서는 내 PC 서버, 공개 주소에서는 클라우드 서버(Supabase Edge Function) 사용 */
+const IS_LOCAL = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+const CLOUD = 'https://crrsswrrdpzmdlrgkfoi.supabase.co/functions/v1/owen-riot/';
+const API_BASE = IS_LOCAL ? '/api/' : CLOUD;
+const ownerHdr = () => ({ 'x-owner-token': LS.get('owner', '') });
 const API = {
   key: () => LS.get('key', ''),
   async get(p) {
     let r;
-    try { r = await fetch('/api/' + p, { headers: { 'x-riot-key': API.key() } }); }
-    catch { const e = new Error('로컬 서버에 연결할 수 없습니다. start.bat(또는 node server.js)으로 실행했는지 확인하세요.'); e.status = 0; throw e; }
+    try { r = await fetch(API_BASE + p, { headers: IS_LOCAL ? { 'x-riot-key': API.key() } : { ...ownerHdr() } }); }
+    catch { const e = new Error(IS_LOCAL ? '로컬 서버에 연결할 수 없습니다. start.bat(또는 node server.js)으로 실행했는지 확인하세요.' : '전적 서버에 연결할 수 없습니다. 잠시 후 다시 시도하세요.'); e.status = 0; throw e; }
     let d = {}; try { d = await r.json() } catch { }
     if (!r.ok) { const e = new Error(d.error || ('HTTP ' + r.status)); e.status = r.status; if ((r.status === 401 || r.status === 403) && p !== 'status') setTimeout(() => KeyUI.refresh(true), 0); throw e; }
     return d;
@@ -525,7 +530,7 @@ const KeyUI = {
   },
   banner() {
     let b = document.getElementById('key-banner');
-    if (location.protocol === 'file:' || !SRV) { if (b) b.remove(); return; }
+    if (location.protocol === 'file:' || !SRV || SRV.ownerRequired) { if (b) b.remove(); return; }
     const l = this.left(); let html = '';
     if (SRV.hasServerKey && SRV.keyValid === false) html = '<b>Riot 개발 키가 만료됐어요.</b> <a href="https://developer.riotgames.com/" target="_blank" rel="noopener">새 키 발급하기 ↗</a> REGENERATE → Copy 후 이 탭으로 돌아오면 자동 적용돼요.';
     else if (SRV.keyValid && l !== null && l < 3600000) html = '<b>Riot 개발 키가 약 ' + this.fmt(l) + ' 후 만료돼요.</b> <a href="https://developer.riotgames.com/" target="_blank" rel="noopener">미리 새 키 발급하기 ↗</a>';
@@ -538,18 +543,18 @@ const KeyUI = {
     if (this.busy) return { ok: false, error: '이미 키를 적용하는 중이에요.' };
     this.busy = true;
     try {
-      const r = await fetch('/api/key', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key }) });
+      const r = await fetch(IS_LOCAL ? '/api/key' : CLOUD + 'key', { method: 'POST', headers: { 'Content-Type': 'application/json', ...ownerHdr() }, body: JSON.stringify({ key }) });
       const d = await r.json().catch(() => ({}));
       if (!r.ok) return { ok: false, error: d.error || ('오류 ' + r.status) };
       LS.set('key', ''); LS.set('lastClipKey', key);
       await this.refresh(); if (auto) toast('새 Riot API 키를 자동으로 적용했어요 (…' + key.slice(-4) + ')');
       if (location.hash.includes('error') || $('.empty.big')) route();
       return { ok: true };
-    } catch { return { ok: false, error: '로컬 서버에 연결할 수 없습니다. start.bat을 실행하세요.' }; }
+    } catch { return { ok: false, error: IS_LOCAL ? '로컬 서버에 연결할 수 없습니다. start.bat을 실행하세요.' : '전적 서버에 연결할 수 없습니다.' }; }
     finally { this.busy = false; }
   },
   async checkClipboard(userAction) {
-    if (!LS.get('autoClip', true) || !navigator.clipboard || !document.hasFocus() || location.protocol === 'file:') return;
+    if (!LS.get('autoClip', true) || !navigator.clipboard || !document.hasFocus() || location.protocol === 'file:' || (!IS_LOCAL && !(SRV && SRV.owner))) return;
     let t = ''; try { t = await navigator.clipboard.readText(); } catch { if (userAction) toast('클립보드 권한을 허용해야 자동 감지가 동작해요.'); return; }
     const m = (t || '').match(/RGAPI-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i); if (!m) return;
     const key = m[0];
@@ -718,7 +723,8 @@ function renderHome() {
   const rec = LS.get('recent', []), fav = LS.get('favs', []);
   const chip = (r, kind) => `<a class="rchip" href="#/${r.demo ? 'demo' : 'summoner'}/${r.pf}/${enc(r.name)}-${enc(r.tag)}"><img src="${CDN()}/img/profileicon/${r.icon || 29}.png" onerror="this.src='${CDN()}/img/profileicon/29.png'"><div><b>${esc(r.name)}</b> <span>#${esc(r.tag)}</span><div><span>${PLABEL[r.pf] || ''} · ${esc(r.tier || 'Unranked')}</span></div></div><span class="x" data-del="${kind}" data-key="${esc(r.pf + '|' + r.name + '|' + r.tag)}">×</span></a>`;
   let notice = '';
-  if (!serverOK) notice = `<div class="notice"><div><b>로컬 서버가 실행되지 않았어요.</b><br>실제 전적을 보려면 폴더의 <b>start.bat</b>을 실행하세요. 지금은 데모 데이터로 체험할 수 있어요.</div><a class="btn gold" href="#/demo/kr/${enc('밤의파수꾼')}-KR1">데모 보기</a></div>`;
+  if (!serverOK) notice = IS_LOCAL ? `<div class="notice"><div><b>로컬 서버가 실행되지 않았어요.</b><br>실제 전적을 보려면 폴더의 <b>start.bat</b>을 실행하세요. 지금은 데모 데이터로 체험할 수 있어요.</div><a class="btn gold" href="#/demo/kr/${enc('밤의파수꾼')}-KR1">데모 보기</a></div>` : `<div class="notice"><div><b>전적 서버에 연결할 수 없어요.</b><br>잠시 후 다시 시도해 주세요. 그동안 데모 데이터로 체험할 수 있어요.</div><a class="btn gold" href="#/demo/kr/${enc('밤의파수꾼')}-KR1">데모 보기</a></div>`;
+  else if (SRV && SRV.ownerRequired) notice = `<div class="notice"><div><b>공개 버전은 데모 모드로 동작해요.</b><br>Riot 정책상 개발용 키는 운영자 전용이에요. 운영자는 ⚙️ 설정에서 소유자 코드를 입력하면 실제 전적을 볼 수 있어요.</div><a class="btn gold" href="#/demo/kr/${enc('밤의파수꾼')}-KR1">데모 보기</a></div>`;
   else if (!canLive()) notice = `<div class="notice"><div><b>Riot API 키가 필요해요.</b><br>설정에서 키를 입력하면 실제 전적이 조회됩니다. 키 없이도 데모로 체험 가능해요.</div><button class="btn gold" data-act="settings">키 입력</button></div>`;
   app.innerHTML = `<section class="hero"><div class="hero-bg" id="hero-bg"><div></div><div></div><video id="hero-vid" muted loop playsinline autoplay preload="none" disablepictureinpicture disableremoteplayback aria-hidden="true" tabindex="-1"></video></div>
     <div class="hero-logo" role="img" aria-label="OWEN WEB 로고"></div><h1><b>Owen.gg</b></h1><p class="tag">리그 오브 레전드 전적 검색 · 실시간 랭크 · 인게임 분석</p>
@@ -766,7 +772,7 @@ async function renderProfile(pf, name, tag, fresh) {
   P.pf = pf; P.queue = ''; P.list = []; P.next = 0; P.done = false; P.loading = false; P.token = Symbol();
   const tok = P.token;
   if (!fresh) app.innerHTML = skeletonProfile();
-  if (!isDemo && !serverOK) return renderError({ message: '로컬 서버가 실행되지 않았습니다. 폴더의 start.bat(또는 node server.js)으로 실행한 뒤 http://localhost:3000 에서 접속하세요.', status: 0 }, pf, name, tag);
+  if (!isDemo && !serverOK) return renderError({ message: IS_LOCAL ? '로컬 서버가 실행되지 않았습니다. 폴더의 start.bat(또는 node server.js)으로 실행한 뒤 http://localhost:3000 에서 접속하세요.' : '전적 서버에 연결할 수 없습니다. 잠시 후 다시 시도하세요.', status: 0 }, pf, name, tag);
   let d;
   try { d = await src().profile(pf, name, tag, fresh); }
   catch (e) { if (tok === P.token) renderError(e, pf, name, tag); return; }
@@ -971,6 +977,7 @@ async function openLive() {
 /* ---- settings ---- */
 function openSettings() {
   modal('설정', `<div style="font-weight:800;margin-bottom:4px">Riot API 키</div><div class="sub" style="font-size:13px">키는 이 PC의 로컬 서버(config.json)에 저장되어 모든 브라우저에서 함께 쓰입니다.</div>
+    <div class="field" id="owner-row"><input id="owner-in" type="password" placeholder="소유자 코드 (owen_…)" value="${esc(LS.get('owner', ''))}"><button class="btn" data-act="owner-save">${IS_LOCAL ? '클라우드 연동' : '인증'}</button></div><div class="sub" style="font-size:12px;margin:-4px 0 6px">${IS_LOCAL ? '소유자 코드를 넣으면 여기서 적용한 키가 공개 주소(github.io)에도 자동으로 적용돼요.' : '운영자 전용: 소유자 코드를 넣으면 공개 주소에서도 실제 전적을 보고 키를 적용할 수 있어요.'}</div>
     <div class="keybox" id="key-state">${KeyUI.stateHTML()}</div>
     <div class="field"><input id="key-in" type="password" placeholder="RGAPI-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" value=""><button class="btn" data-act="key-eye">보기</button></div>
     <div style="display:flex;gap:8px"><button class="btn primary" data-act="key-save">저장 및 적용</button><a class="btn" href="https://developer.riotgames.com/" target="_blank" rel="noopener">새 키 발급하기 ↗</a></div><div class="msg" id="key-msg"></div>
@@ -980,7 +987,7 @@ function openSettings() {
   refreshSrvStat().then(() => { const el = $('#key-state'); if (el) el.innerHTML = KeyUI.stateHTML(); });
   $('#clip-auto') && $('#clip-auto').addEventListener('change', (e) => { LS.set('autoClip', e.target.checked); if (e.target.checked) KeyUI.checkClipboard(true); });
 }
-function srvStatHTML() { return `<span class="dot${serverOK ? ' on' : ''}"></span>로컬 서버 ${serverOK ? '연결됨' : '미연결 (start.bat 실행 필요)'}${hasServerKey ? ' · 서버에 키 설정됨' : ''}`; }
+function srvStatHTML() { const nm = IS_LOCAL ? '로컬 서버' : '클라우드 서버'; const own = !IS_LOCAL && SRV ? (SRV.owner ? ' · 운영자 인증됨' : ' · 운영자 미인증 (데모 모드)') : ''; return `<span class="dot${serverOK ? ' on' : ''}"></span>${nm} ${serverOK ? '연결됨' : (IS_LOCAL ? '미연결 (start.bat 실행 필요)' : '연결 실패')}${own}${hasServerKey ? ' · 서버에 키 설정됨' : ''}`; }
 async function refreshSrvStat() { await checkServer(); const el = $('#srv-stat'); if (el) el.innerHTML = srvStatHTML(); return serverOK; }
 
 /* ---- ranking ---- */
@@ -1030,6 +1037,13 @@ document.addEventListener('click', async e => {
   if (act === 'retry') return route();
   if (act === 'key-eye') { const i = $('#key-in'); i.type = i.type === 'password' ? 'text' : 'password'; return; }
   if (act === 'key-clear') { LS.set('key', ''); $('#key-in').value = ''; $('#key-msg').className = 'msg'; $('#key-msg').textContent = '삭제했습니다.'; return; }
+  if (act === 'owner-save') {
+    const v = $('#owner-in').value.trim(); LS.set('owner', v); const m = $('#key-msg');
+    await KeyUI.refresh(true);
+    if (IS_LOCAL) { m.className = 'msg ok'; m.textContent = v ? '저장했어요. 이제 이 PC에서 적용한 키가 공개 주소에도 함께 적용돼요.' : '소유자 코드를 지웠어요.'; const r = await fetch('/api/key-sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ owner: v }) }).then(x => x.json()).catch(() => ({ error: '로컬 서버 연결 실패' })); if (v && r.error) { m.className = 'msg bad'; m.textContent = r.error; } return; }
+    if (SRV && SRV.owner) { m.className = 'msg ok'; m.textContent = '운영자 인증 완료! 실제 전적 조회가 가능합니다.'; route(); } else { m.className = 'msg bad'; m.textContent = '소유자 코드가 올바르지 않습니다.'; }
+    return;
+  }
   if (act === 'key-save') {
     const v = $('#key-in').value.trim(); const m = $('#key-msg');
     if (!v) { m.className = 'msg bad'; m.textContent = 'API 키를 입력해 주세요. (RGAPI-로 시작)'; $('#key-in').focus(); return; }

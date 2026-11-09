@@ -31,6 +31,12 @@ async function keyValidity(force = false) {
   if (!force && keyState.key === k && Date.now() - keyState.checkedAt < 300000) return keyState.valid;
   const v = await probeKey(k); keyState.key = k; keyState.checkedAt = Date.now(); keyState.valid = v; return v;
 }
+const CLOUD_KEY_URL = 'https://crrsswrrdpzmdlrgkfoi.supabase.co/functions/v1/owen-riot/key';
+async function syncCloud() {
+  const c = readConfig(); if (!c.ownerToken || !c.riotApiKey) return { ok: false, error: '소유자 코드 또는 키가 없습니다.' };
+  try { const r = await fetch(CLOUD_KEY_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-owner-token': c.ownerToken }, body: JSON.stringify({ key: c.riotApiKey }) }); const d = await r.json().catch(() => ({})); return r.ok ? { ok: true } : { ok: false, error: d.error || ('클라우드 오류 ' + r.status) }; }
+  catch { return { ok: false, error: '클라우드 서버에 연결할 수 없습니다.' }; }
+}
 const isLocal = (req) => ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(req.socket.remoteAddress);
 function readBody(req) { return new Promise((ok) => { let b = ''; req.on('data', (c) => { b += c; if (b.length > 4096) req.destroy(); }); req.on('end', () => { try { ok(JSON.parse(b || '{}')); } catch { ok({}); } }); }); }
 const serverKey = () => process.env.RIOT_API_KEY || configKey();
@@ -193,7 +199,17 @@ http.createServer(async (req, res) => {
     writeConfig({ riotApiKey: k, appliedAt });
     keyState.key = k; keyState.valid = true; keyState.checkedAt = Date.now(); cache.clear?.();
     console.log('[key] 새 API 키 적용 (…' + k.slice(-4) + ')');
+    syncCloud().then((r) => console.log('[key] 클라우드 동기화', r.ok ? '완료' : '실패: ' + r.error));
     return send(res, 200, { ok: true, appliedAt, expiresAt: appliedAt + 24 * 3600 * 1000, keyTail: k.slice(-4) });
+  }
+  /* 소유자 코드 저장 + 현재 키를 클라우드(공개 주소)에 동기화 */
+  if (u.pathname === '/api/key-sync' && req.method === 'POST') {
+    if (!isLocal(req)) return send(res, 403, { error: '로컬에서만 가능합니다.' });
+    const { owner } = await readBody(req);
+    writeConfig({ ownerToken: String(owner || '').trim() });
+    if (!owner) return send(res, 200, { ok: true });
+    const r = await syncCloud();
+    return send(res, r.ok ? 200 : 400, r.ok ? { ok: true } : { error: r.error });
   }
   if (u.pathname.startsWith('/api/')) {
     const name = u.pathname.slice(5);
