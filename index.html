@@ -363,7 +363,48 @@ img{display:block}
 
 footer{border-top:1px solid var(--line);padding:26px 20px;text-align:center;color:var(--mute);font-size:12px;line-height:1.7}
 
+
+/* titles (칭호) */
+.ttl{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:800;padding:3px 9px 3px 7px;border-radius:20px;white-space:nowrap;line-height:1.3;position:relative;overflow:hidden}
+.ttl svg{width:12px;height:12px;flex:none}
+.ttl.leg{background:linear-gradient(135deg,#ffe08a,#ffb547 55%,#ff7a3d);color:#3a1a00;box-shadow:0 0 14px rgba(255,170,60,.35)}
+.ttl.leg:after{content:"";position:absolute;top:0;bottom:0;width:40%;left:-60%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.65),transparent);animation:shine 2.8s infinite}
+@keyframes shine{0%{left:-60%}55%,100%{left:130%}}
+.ttl.epic{background:linear-gradient(135deg,#a77bff,#6a43e0);color:#fff;box-shadow:0 0 12px rgba(140,90,255,.3)}
+.ttl.rare{background:rgba(10,200,185,.12);color:#4fe6d6;box-shadow:inset 0 0 0 1px rgba(10,200,185,.38)}
+.ttl.tplus{background:rgba(255,255,255,.07);color:var(--sub);padding:3px 8px}
+.ttl.sm{font-size:10px;padding:2px 7px 2px 5px;margin-top:3px}
+.ttl.sm svg{width:10px;height:10px}
+.m-titles{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.match.legend{border-color:rgba(255,190,90,.55);box-shadow:0 0 0 1px rgba(255,190,90,.2),0 0 26px rgba(255,160,50,.13)}
+.match.legend:hover{border-color:rgba(255,200,110,.85)}
+.ptitle{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12px;color:var(--sub)}
+.tcol{display:flex;flex-direction:column;gap:2px;padding:10px 12px 14px}
+.tcol .tr{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 4px;border-radius:8px}
+.tcol .tr:hover{background:rgba(255,255,255,.03)}
+.tcol .tr .tn{font-size:12px;color:var(--sub);font-weight:700;font-style:normal}
+.tcol .tsum{display:flex;gap:6px;padding:0 4px 8px;font-size:11.5px;color:var(--mute)}
+.tcol .tsum b{color:var(--text)}
+/* recent form */
+.form-row{display:grid;grid-template-columns:1.1fr 1.3fr 1fr;gap:6px;padding:16px 18px 18px;border-top:1px solid var(--line)}
+.streak{font-size:15px;font-weight:900;margin-bottom:10px}
+.streak.w{color:#5b93ff}.streak.l{color:#ff6b84}.streak.n{color:var(--sub)}
+.wl-strip{display:grid;grid-template-columns:repeat(10,16px);gap:3px}
+.wl-strip i{width:16px;height:16px;border-radius:4px;font-style:normal;font-size:9px;font-weight:800;display:grid;place-items:center;color:#fff}
+.wl-strip i.w{background:var(--win)}.wl-strip i.l{background:var(--lose)}
+.spark{width:100%;height:74px;display:block}
+.spark-lg{display:flex;gap:12px;font-size:11px;color:var(--mute);margin-top:4px}
+.ptags2{display:flex;flex-wrap:wrap;gap:6px}
+.ptags2 span{font-size:12px;font-weight:700;padding:5px 10px;border-radius:9px;background:rgba(240,210,140,.08);color:var(--gold2);box-shadow:inset 0 0 0 1px rgba(240,210,140,.2)}
+/* champion filter */
+#side-champs .row[data-cf]{cursor:pointer;transition:background .15s}
+#side-champs .row[data-cf]:hover{background:rgba(255,255,255,.04)}
+#side-champs .row.on{background:rgba(10,200,185,.1);box-shadow:inset 3px 0 0 var(--teal)}
+.cf-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;background:rgba(10,200,185,.08);border:1px solid rgba(10,200,185,.25);font-size:13px}
+.cf-bar img{width:26px;height:26px;border-radius:50%}
+.cf-bar button{margin-left:auto;font-size:12px;font-weight:700;color:var(--teal)}
 @media (max-width:980px){
+  .form-row{grid-template-columns:1fr 1fr}.form-row>.ftags{grid-column:1/-1}
   .pgrid{grid-template-columns:1fr}
   .match{grid-template-columns:92px 1fr 36px}
   .m-players{display:none}
@@ -378,6 +419,7 @@ footer{border-top:1px solid var(--line);padding:26px 20px;text-align:center;colo
   .pinfo h1{font-size:26px}
   .mstats{display:none}
   .sum-grid{grid-template-columns:1fr}
+  .form-row{grid-template-columns:1fr}
   .kda{width:92px}
   .nav{display:none}
 }
@@ -448,6 +490,10 @@ const emblem = t => `https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-s
 const tierText = e => !e ? 'Unranked' : APEX.includes(e.tier) ? TIERS[e.tier][0] : `${(TIERS[e.tier] || [e.tier])[0]} ${DIV[e.rank] || ''}`;
 const tierColor = t => (TIERS[t] || [0, '#8e97ab'])[1];
 const ICON = {
+  share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>',
+  crown: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 7l4.5 4L12 4l4.5 7L21 7l-2 12H5z"/></svg>',
+  flame: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 1.5-5 3-6 0 2 1 3.5 2.5 4C11 9 10 6 12 2z"/></svg>',
+  gem: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 3h12l4 6-10 12L2 9z"/></svg>',
   search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
   star: f => `<svg viewBox="0 0 24 24" fill="${f ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>`,
   refresh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-2.6-6.4L21 8"/><path d="M21 3v5h-5"/></svg>',
@@ -627,6 +673,9 @@ const Demo = (() => {
       summoner1Id: 4, summoner2Id: SPELL[pos] || 32,
       perks: { styles: [{ style: st.id, selections: [{ perk: pick(st.slots[0].runes, r).id }] }, { style: sub.id, selections: [] }] },
       teamId: team, win: remake ? false : win, teamPosition: pos, largestMultiKill: lm, pentaKills: lm === 5 ? 1 : 0, gameEndedInEarlySurrender: !!remake,
+      firstBloodKill: k > 0 && r() < .1, largestKillingSpree: Math.max(0, Math.round(k * (.3 + r() * .5))), turretKills: Math.round((pos === 'TOP' ? 2 : pos === 'BOTTOM' || pos === 'MIDDLE' ? 1.3 : .5) * (win ? 1.4 : .6) * r() * 2.2),
+      dragonKills: pos === 'JUNGLE' ? Math.round(r() * 3.4) : 0, baronKills: pos === 'JUNGLE' && r() < .35 ? 1 : 0,
+      totalHealsOnTeammates: pos === 'UTILITY' ? Math.round(min * 220 * r()) : 0, totalDamageShieldedOnTeammates: pos === 'UTILITY' ? Math.round(min * 160 * r()) : 0,
     };
   }
 
@@ -789,16 +838,19 @@ async function renderProfile(pf, name, tag, fresh) {
     <div class="picon"><img src="${CDN()}/img/profileicon/${d.summoner.profileIconId}.png" onerror="this.src='${CDN()}/img/profileicon/29.png'" alt=""><span>${d.summoner.summonerLevel}</span></div>
     <div class="pinfo"><div class="ptags"><span class="chip">${PLABEL[pf] || pf}</span>${solo ? `<span class="chip tier" style="--tc:${tierColor(solo.tier)}">${tierText(solo)}</span>` : ''}${isDemo ? '<span class="chip demo" data-tt="데모 데이터" data-tb="실제 전적이 아닌 예시 데이터입니다. 설정에서 API 키를 넣으면 실제 전적이 조회됩니다.">DEMO</span>' : ''}</div>
       <h1>${esc(d.account.gameName)}<span>#${esc(d.account.tagLine)}</span></h1>
-      <div class="pact"><button class="btn primary" data-act="refresh">${ICON.refresh} 전적 갱신</button><button class="btn" data-act="live">${ICON.live} 인게임 정보</button><button class="btn${isFav() ? ' on' : ''}" data-act="fav" data-tt="즐겨찾기">${ICON.star(isFav())}</button></div>
+      <div class="ptitle" id="p-title" hidden></div>
+      <div class="pact"><button class="btn primary" data-act="refresh">${ICON.refresh} 전적 갱신</button><button class="btn" data-act="live">${ICON.live} 인게임 정보</button><button class="btn${isFav() ? ' on' : ''}" data-act="fav" data-tt="즐겨찾기">${ICON.star(isFav())}</button><button class="btn" data-act="share" data-tt="공유" data-tb="프로필 링크 복사">${ICON.share}</button></div>
       <div class="upd" id="upd">최근 업데이트: 방금 전</div></div></div></section>
   <div class="wrap pgrid">
     <aside class="pside">${rankCard('솔로랭크', solo)}${rankCard('자유랭크', flex)}
+      <div class="card" id="side-titles"><div class="card-h">칭호 컬렉션</div><div class="center"><div class="spin"></div></div></div>
       <div class="card clist" id="side-champs"><div class="card-h">챔피언 통계</div><div class="center"><div class="spin"></div></div></div>
       <div class="card"><div class="card-h">챔피언 숙련도 <span class="sub">TOP ${Math.min(10, d.mastery.length)}</span></div>${d.mastery.length ? `<div class="mgrid">${d.mastery.slice(0, 10).map(m => `<div class="mc"><div class="mi">${cImg(m.championId)}<span class="ml">${m.championLevel}</span></div><div class="mp">${kfmt(m.championPoints)}</div></div>`).join('')}</div>` : '<div class="empty">숙련도 정보 없음</div>'}</div>
       <div class="card duo" id="side-duo"><div class="card-h">함께 플레이한 소환사</div><div class="center"><div class="spin"></div></div></div>
     </aside>
     <section class="pmain">
       <div class="card"><div class="qtabs">${QTABS.map(([q, l]) => `<button class="qtab${q === P.queue ? ' on' : ''}" data-q="${q}">${l}</button>`).join('')}</div><div id="sum-body"><div class="center"><div class="spin"></div></div></div></div>
+      <div id="cf-bar"></div>
       <div id="mlist" style="display:flex;flex-direction:column;gap:10px">${'<div class="sk sk-match"></div>'.repeat(5)}</div>
       <div id="more-wrap"></div>
     </section></div>`;
@@ -808,7 +860,7 @@ async function renderProfile(pf, name, tag, fresh) {
 async function loadMatches(reset, fresh) {
   if (P.loading) return; P.loading = true;
   const tok = P.token;
-  if (reset) { P.list = []; P.next = 0; P.done = false; $('#mlist').innerHTML = '<div class="sk sk-match"></div>'.repeat(5); }
+  if (reset) { P.list = []; P.next = 0; P.done = false; P.champ = ''; $('#mlist').innerHTML = '<div class="sk sk-match"></div>'.repeat(5); }
   else $('#more-wrap').innerHTML = '<button class="more" disabled><div class="spin" style="width:20px;height:20px;border-width:2px"></div></button>';
   try {
     const ids = await src().matchIds(P.pf, P.puuid, P.next, 20, P.queue, fresh);
@@ -854,8 +906,106 @@ function analyze(m, puuid) {
   ps.forEach((p, i) => p._s = sc[i]);
   const rank = [...ps].sort((a, b) => b._s - a._s); ps.forEach(p => p._r = rank.indexOf(p) + 1);
   if (!arena) for (const w of [true, false]) { const best = ps.filter(p => p.win === w).sort((a, b) => b._s - a._s)[0]; if (best) best._b = w ? 'MVP' : 'ACE'; }
+  ps.forEach(p => p._t = remake ? [] : titlesOf(p, ps, dur, arena, info.queueId, tkey));
   const end = info.gameEndTimestamp || (info.gameStartTimestamp || info.gameCreation) + dur * 1000;
   return { m, me, ps, dur, remake, arena, end, q: info.queueId, kp: pct(me.kills + me.assists, tk), cs: me.totalMinionsKilled + me.neutralMinionsKilled };
+}
+
+/* ---- 칭호 (잘한 판에 붙는 타이틀) ---- */
+const TROLE = { leg: '전설', epic: '영웅', rare: '희귀' }, TORD = { leg: 0, epic: 1, rare: 2 };
+const TITLES = [
+  ['penta', 'leg', '협곡의 지배자', '펜타킬 달성', c => c.lm >= 5],
+  ['god', 'leg', '전장의 신', 'MVP · 평점 6 이상 · 킬관여 60% 이상', c => c.p._b === 'MVP' && c.kda >= 6 && c.kp >= .6],
+  ['immortal', 'leg', '불사신', '노데스 · 킬+어시스트 12 이상', c => c.D === 0 && c.K + c.A >= 12],
+  ['oneman', 'leg', '원맨 아미', '팀 피해량의 38% 이상을 책임지고 승리', c => c.share >= .38 && c.p.win],
+  ['quadra', 'epic', '쿼드라 헌터', '쿼드라킬 달성', c => c.lm === 4],
+  ['slayer', 'epic', '학살자', '한 게임 15킬 이상', c => c.K >= 15],
+  ['spree', 'epic', '폭주 기관차', '죽지 않고 8연속 처치', c => c.spree >= 8],
+  ['flawless', 'epic', '무결점', '노데스 · 킬+어시스트 5 이상', c => c.D === 0 && c.K + c.A >= 5 && c.K + c.A < 12],
+  ['topdmg', 'epic', '딜량 1위', '게임 내 챔피언 피해량 1위', c => c.topDmg && c.share >= .28],
+  ['demolish', 'epic', '철거반장', '포탑 3개 이상 파괴', c => c.tw >= 3],
+  ['objective', 'epic', '오브젝트 사냥꾼', '드래곤·바론 3회 이상 처치', c => c.obj >= 3],
+  ['teamheart', 'rare', '팀의 심장', '킬관여 75% 이상 · 킬+어시스트 10 이상', c => c.kp >= .75 && c.K + c.A >= 10],
+  ['triple', 'rare', '트리플 킬러', '트리플킬 달성', c => c.lm === 3],
+  ['firstblood', 'rare', '퍼스트 블러드', '게임 첫 킬 획득', c => c.p.firstBloodKill],
+  ['farmer', 'rare', 'CS 장인', '분당 CS 8.5 이상', c => !c.aram && !c.arena && c.p.teamPosition !== 'UTILITY' && c.csm >= 8.5],
+  ['vision', 'rare', '시야 장악자', '시야 점수 1위 · 분당 1.6 이상', c => !c.aram && !c.arena && c.topVis && c.vpm >= 1.6],
+  ['tank', 'rare', '강철 방패', '받은 피해량 1위 · 데스보다 킬관여가 많음', c => c.topTaken && c.K + c.A > c.D],
+  ['guardian', 'rare', '수호천사', '아군 회복·보호막 8,000 이상', c => c.heal >= 8000],
+  ['playmaker', 'rare', '플레이메이커', '어시스트 20개 이상', c => c.A >= 20],
+  ['rich', 'rare', '골드 부자', '게임 내 골드 획득 1위', c => c.topGold],
+];
+const TBY = Object.fromEntries(TITLES.map(t => [t[0], t]));
+function titlesOf(p, ps, dur, arena, q, tkey) {
+  const min = Math.max(1, dur / 60), mate = ps.filter(x => tkey(x) === tkey(p));
+  const tK = mate.reduce((s, x) => s + x.kills, 0), tD = mate.reduce((s, x) => s + x.totalDamageDealtToChampions, 0);
+  const top = f => { const v = f(p); return v > 0 && ps.every(x => f(x) <= v); };
+  const c = { p, K: p.kills, D: p.deaths, A: p.assists, lm: p.largestMultiKill || 0, kda: (p.kills + p.assists) / Math.max(1, p.deaths), kp: (p.kills + p.assists) / Math.max(1, tK), share: p.totalDamageDealtToChampions / Math.max(1, tD),
+    spree: p.largestKillingSpree || 0, tw: p.turretKills || 0, obj: (p.dragonKills || 0) + (p.baronKills || 0), csm: (p.totalMinionsKilled + p.neutralMinionsKilled) / min, vpm: (p.visionScore || 0) / min,
+    heal: (p.totalHealsOnTeammates || 0) + (p.totalDamageShieldedOnTeammates || 0), aram: q === 450, arena,
+    topDmg: top(x => x.totalDamageDealtToChampions), topVis: top(x => x.visionScore || 0), topTaken: top(x => x.totalDamageTaken), topGold: top(x => x.goldEarned) };
+  /* 잘한 판에만: OP 스코어 6 이상이거나 게임 내 3위 이내, MVP/ACE (전설 칭호는 예외 없이 인정) */
+  const good = p._s >= 6 || p._r <= 3 || !!p._b;
+  return TITLES.filter(t => { try { return (good || t[1] === 'leg') && t[4](c); } catch { return false; } }).map(t => t[0]);
+}
+function titleChip(id, sm) { const t = TBY[id]; if (!t) return ''; return `<span class="ttl ${t[1]}${sm ? ' sm' : ''}" data-tt="${TROLE[t[1]]} 칭호 · ${t[2]}" data-tb="${t[3]}">${t[1] === 'leg' ? ICON.crown : t[1] === 'epic' ? ICON.flame : ICON.gem}${t[2]}</span>`; }
+function titlesRow(ids) {
+  if (!ids || !ids.length) return '';
+  const extra = ids.slice(2).map(id => TBY[id][2]).join(', ');
+  return `<div class="m-titles">${ids.slice(0, 2).map(id => titleChip(id)).join('')}${ids.length > 2 ? `<span class="ttl tplus" data-tt="추가 칭호" data-tb="${extra}">+${ids.length - 2}</span>` : ''}</div>`;
+}
+function titleCount(valid) { const c = {}; for (const a of valid) for (const id of a.me._t || []) c[id] = (c[id] || 0) + 1; return Object.entries(c).sort((x, y) => TORD[TBY[x[0]][1]] - TORD[TBY[y[0]][1]] || y[1] - x[1]); }
+function renderTitles(valid) {
+  const el = $('#side-titles'); if (!el) return;
+  const tc = titleCount(valid), games = valid.filter(a => (a.me._t || []).length).length;
+  const cnt = r => tc.filter(([id]) => TBY[id][1] === r).reduce((s, x) => s + x[1], 0);
+  el.innerHTML = `<div class="card-h">칭호 컬렉션 <span class="sub">최근 ${valid.length}게임</span></div>` + (tc.length ? `<div class="tcol"><div class="tsum">칭호 획득 <b>${games}</b>게임 · 전설 <b>${cnt('leg')}</b> · 영웅 <b>${cnt('epic')}</b> · 희귀 <b>${cnt('rare')}</b></div>${tc.map(([id, n]) => `<div class="tr">${titleChip(id)}<em class="tn">×${n}</em></div>`).join('')}</div>` : '<div class="empty">아직 획득한 칭호가 없어요.<br>잘한 판에서 칭호를 얻을 수 있어요.</div>');
+  const pt = $('#p-title');
+  if (pt) { if (tc.length) { pt.innerHTML = '대표 칭호 ' + titleChip(tc[0][0]); pt.hidden = false; } else pt.hidden = true; }
+}
+function formHTML(valid) {
+  if (!valid.length) return '';
+  const recent = valid.slice(0, 20);
+  let sN = 0; const sW = recent[0].me.win; for (const a of recent) { if (a.me.win === sW) sN++; else break; }
+  const streak = sN >= 2 ? `<div class="streak ${sW ? 'w' : 'l'}">${sN}${sW ? '연승' : '연패'} 중</div>` : `<div class="streak n">최근 ${sW ? '승리' : '패배'}</div>`;
+  const strip = `<div class="wl-strip">${recent.map(a => `<i class="${a.me.win ? 'w' : 'l'}" data-tt="${a.me.win ? '승리' : '패배'} · ${esc(champName(a.me.championId))}" data-tb="${a.me.kills}/${a.me.deaths}/${a.me.assists} · OP ${a.me._s.toFixed(1)} · ${ago(a.end)}">${a.me.win ? '승' : '패'}</i>`).join('')}</div>`;
+  const pts = [...recent].reverse(), W = 300, H = 74, n = pts.length;
+  const xs = i => n === 1 ? W / 2 : 8 + i * (W - 16) / (n - 1), ys = v => H - 8 - v / 10 * (H - 16);
+  const path = pts.map((a, i) => `${i ? 'L' : 'M'}${xs(i).toFixed(1)},${ys(a.me._s).toFixed(1)}`).join(' ');
+  const avg = pts.reduce((s, a) => s + a.me._s, 0) / n;
+  const svg = `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><defs><linearGradient id="spg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#0ac8b9" stop-opacity=".35"/><stop offset="1" stop-color="#0ac8b9" stop-opacity="0"/></linearGradient></defs><line x1="0" x2="${W}" y1="${ys(avg)}" y2="${ys(avg)}" stroke="rgba(240,210,140,.45)" stroke-dasharray="4 4"/>${n > 1 ? `<path d="${path} L${xs(n - 1)},${H} L${xs(0)},${H} Z" fill="url(#spg)"/><path d="${path}" fill="none" stroke="#0ac8b9" stroke-width="2"/>` : ''}${pts.map((a, i) => `<circle cx="${xs(i)}" cy="${ys(a.me._s)}" r="3" fill="${a.me.win ? '#3d7bff' : '#ef4561'}"/>`).join('')}</svg>`;
+  return `<div class="form-row"><div><div class="sub-h">최근 폼</div>${streak}${strip}</div>
+    <div><div class="sub-h">OP 스코어 추이 <span class="mute" style="font-weight:500">(왼쪽이 과거)</span></div>${svg}<div class="spark-lg"><span>평균 <b style="color:var(--gold2)">${avg.toFixed(1)}</b></span><span>최고 <b style="color:var(--text)">${Math.max(...pts.map(a => a.me._s)).toFixed(1)}</b></span></div></div>
+    <div class="ftags"><div class="sub-h">플레이 성향</div><div class="ptags2">${styleTags(valid).map(t => `<span>#${t}</span>`).join('') || '<span>#분석 중</span>'}</div></div></div>`;
+}
+function styleTags(valid) {
+  const n = valid.length, sr = valid.filter(a => !a.arena && a.q !== 450), m = sr.length || 1, tags = [];
+  const avg = (arr, f) => arr.reduce((s, a) => s + f(a), 0) / Math.max(1, arr.length);
+  const share = avg(valid, a => { const mate = a.ps.filter(p => (a.arena ? p.playerSubteamId === a.me.playerSubteamId : p.teamId === a.me.teamId)); return a.me.totalDamageDealtToChampions / Math.max(1, mate.reduce((s, p) => s + p.totalDamageDealtToChampions, 0)); });
+  const pc = {}; for (const a of sr) if (a.me.teamPosition) pc[a.me.teamPosition] = (pc[a.me.teamPosition] || 0) + 1;
+  const mp = Object.entries(pc).sort((x, y) => y[1] - x[1])[0]; if (mp && mp[1] / m >= .4) tags.push({ TOP: '탑', JUNGLE: '정글', MIDDLE: '미드', BOTTOM: '원딜', UTILITY: '서폿' }[mp[0]] + ' 주력');
+  if (share >= .27) tags.push('캐리형 딜러');
+  const ak = avg(valid, a => a.me.kills), ad = avg(valid, a => a.me.deaths), aa = avg(valid, a => a.me.assists);
+  if (ak >= 7) tags.push('공격형'); else if (aa >= 9 && ak < 5) tags.push('서포팅형');
+  if (ad > 0 && (ak + aa) / ad >= 3.5) tags.push('안정형');
+  if (avg(valid, a => a.kp) >= 60) tags.push('한타 지향');
+  if (avg(valid, a => a.me.deaths) <= 3.8) tags.push('생존왕');
+  if (sr.length && avg(sr, a => a.me.visionScore / (a.dur / 60)) >= 1.4) tags.push('시야 장인');
+  const farm = sr.filter(a => a.me.teamPosition !== 'UTILITY'); if (farm.length >= 3 && avg(farm, a => a.cs / (a.dur / 60)) >= 7.2) tags.push('파밍 머신');
+  if (valid.filter(a => a.me.firstBloodKill).length / n >= .2) tags.push('초반 공격형');
+  const gc = groupChamps(valid); if (gc[0] && gc[0].n / n >= .45 && n >= 5) tags.push(champName(gc[0].id) + ' 장인'); else if (gc.length >= Math.max(6, n * .6)) tags.push('넓은 챔프폭');
+  if (pct(valid.filter(a => a.me.win).length, n) >= 60 && n >= 5) tags.push('승리 보증수표');
+  if (valid.filter(a => (a.me._t || []).some(id => TBY[id][1] === 'leg')).length >= 2) tags.push('전설 제조기');
+  if (tags.length < 2 && mp && !tags.some(t => t.endsWith('주력'))) tags.unshift('주 포지션 ' + { TOP: '탑', JUNGLE: '정글', MIDDLE: '미드', BOTTOM: '원딜', UTILITY: '서폿' }[mp[0]]);
+  return tags.slice(0, 6);
+}
+function applyCF() {
+  const bar = $('#cf-bar'); if (!bar) return;
+  $$('#side-champs .row[data-cf]').forEach(r => r.classList.toggle('on', r.dataset.cf === P.champ));
+  $$('#mlist .match').forEach(r => { const hide = !!P.champ && r.dataset.cid !== P.champ; r.hidden = hide; const nx = r.nextElementSibling; if (hide && nx && nx.classList.contains('m-detail')) { nx.remove(); r.classList.remove('open'); } });
+  if (!P.champ) { bar.innerHTML = ''; return; }
+  const shown = $$('#mlist .match').filter(r => !r.hidden).length;
+  bar.innerHTML = `<div class="cf-bar">${cImg(+P.champ)}<span><b>${esc(champName(+P.champ))}</b> 게임만 보는 중 · ${shown}게임</span><button data-act="cf-clear">필터 해제</button></div>`;
 }
 
 function groupChamps(list) {
@@ -879,11 +1029,11 @@ function renderMatches(reset) {
       <div class="sum-wr">${ring(pct(w, n), 92, 10)}<div><div class="g">${n}전 ${w}승 ${n - w}패</div><div class="sum-kda">${K.toFixed(1)} / <span class="d">${D.toFixed(1)}</span> / ${A.toFixed(1)}</div><div class="sum-r ${kcls(r)}">${r}${r === 'Perfect' ? '' : ':1'}</div><div class="g">킬관여 ${kp}%</div></div></div>
       <div><div class="sub-h">플레이한 챔피언 (최근 ${n}게임)</div>${gc.map(c => { const cr = ratioOf(c.k, c.d, c.a); return `<div class="sc">${cImg(c.id)}<div><b class="${pct(c.w, c.n) >= 60 ? 'wr-hi' : ''}">${pct(c.w, c.n)}%</b> <span class="s2">(${c.w}승 ${c.n - c.w}패)</span> <b class="${kcls(cr)}">${cr} 평점</b></div></div>`; }).join('')}</div>
       <div class="sum-pos"><div class="sub-h">선호 포지션</div>${pn ? `<div class="pos-bars">${POSL.map(p => `<div class="pb" data-tt="${POSK[p]}" data-tb="${pc[p] || 0}게임 (${pct(pc[p] || 0, pn)}%)"><div class="pb-track"><div class="pb-fill" style="height:${pct(pc[p] || 0, pn)}%"></div></div><img src="${posIcon(p)}" onerror="this.replaceWith(Object.assign(document.createElement('small'),{textContent:'${POSK[p]}'}))" alt=""></div>`).join('')}</div>` : '<div class="empty">포지션 데이터 없음</div>'}</div>
-    </div>`;
+    </div>${formHTML(valid)}`;
   }
   // side champs
   const gc = groupChamps(valid).slice(0, 7);
-  $('#side-champs').innerHTML = `<div class="card-h">챔피언 통계 <span class="sub">최근 ${valid.length}게임</span></div>` + (gc.length ? gc.map(c => { const cr = ratioOf(c.k, c.d, c.a); return `<div class="row">${cImg(c.id)}<div style="min-width:0"><div class="nm">${esc(champName(c.id))}</div><div class="s2">CS ${(c.cs / c.n).toFixed(0)} (${(c.cs / c.min).toFixed(1)})</div></div><div class="kd ${kcls(cr)}">${cr} 평점<small>${(c.k / c.n).toFixed(1)} / ${(c.d / c.n).toFixed(1)} / ${(c.a / c.n).toFixed(1)}</small></div><div class="wr ${pct(c.w, c.n) >= 60 ? 'wr-hi' : ''}">${pct(c.w, c.n)}%<small>${c.n}게임</small></div></div>`; }).join('') : '<div class="empty">데이터 없음</div>');
+  $('#side-champs').innerHTML = `<div class="card-h">챔피언 통계 <span class="sub">최근 ${valid.length}게임</span></div>` + (gc.length ? gc.map(c => { const cr = ratioOf(c.k, c.d, c.a); return `<div class="row" data-cf="${c.id}" data-tt="${esc(champName(c.id))}" data-tb="클릭하면 이 챔피언 게임만 볼 수 있어요">${cImg(c.id)}<div style="min-width:0"><div class="nm">${esc(champName(c.id))}</div><div class="s2">CS ${(c.cs / c.n).toFixed(0)} (${(c.cs / c.min).toFixed(1)})</div></div><div class="kd ${kcls(cr)}">${cr} 평점<small>${(c.k / c.n).toFixed(1)} / ${(c.d / c.n).toFixed(1)} / ${(c.a / c.n).toFixed(1)}</small></div><div class="wr ${pct(c.w, c.n) >= 60 ? 'wr-hi' : ''}">${pct(c.w, c.n)}%<small>${c.n}게임</small></div></div>`; }).join('') : '<div class="empty">데이터 없음</div>');
   // duo
   const duo = {};
   for (const a of valid) for (const p of a.ps) if (p.puuid !== P.puuid && (a.arena ? p.playerSubteamId === a.me.playerSubteamId : p.teamId === a.me.teamId)) { const x = (duo[p.puuid] ||= { n: 0, w: 0, name: pname(p), tag: ptag(p), c: p.championId }); x.n++; x.w += a.me.win ? 1 : 0; }
@@ -894,6 +1044,7 @@ function renderMatches(reset) {
   if (reset) $('#mlist').innerHTML = html || '<div class="card"><div class="empty big">최근 게임 기록이 없습니다.</div></div>';
   else $('#mlist').insertAdjacentHTML('beforeend', list.slice(list.length - (list.length - $$('#mlist .match').length)).map(matchRow).join(''));
   $('#more-wrap').innerHTML = P.done ? '' : '<button class="more" data-act="more">더 보기</button>';
+  renderTitles(valid); applyCF();
 }
 
 function matchRow(a, idx) {
@@ -908,11 +1059,13 @@ function matchRow(a, idx) {
   const res = remake ? '다시하기' : arena ? `${me.placement || '-'}등` : me.win ? '승리' : '패배';
   let players = '';
   if (!arena) { const t1 = ps.filter(p => p.teamId === 100), t2 = ps.filter(p => p.teamId === 200); for (let i = 0; i < 5; i++) for (const p of [t1[i], t2[i]]) players += p ? `<div class="mp-row${p.puuid === P.puuid ? ' me' : ''}"><img src="${champImg(p.championId)}" loading="lazy" alt=""><a href="${sumLink(P.pf, pname(p), ptag(p))}" data-tt="${esc(pname(p))}#${esc(ptag(p))}">${esc(pname(p))}</a></div>` : '<div></div>'; }
-  return `<div class="match ${cls}" data-mid="${esc(m.metadata.matchId)}" style="animation-delay:${Math.min(idx % 20, 10) * 25}ms">
+  const tl = me._t || [], legend = tl.some(id => TBY[id][1] === 'leg');
+  return `<div class="match ${cls}${legend ? ' legend' : ''}" data-cid="${me.championId}" data-mid="${esc(m.metadata.matchId)}" style="animation-delay:${Math.min(idx % 20, 10) * 25}ms">
     <div class="m-meta"><div class="q">${QUEUES[a.q] || '기타'}</div><div data-tt="${new Date(a.end).toLocaleString('ko-KR')}">${ago(a.end)}</div><hr><div class="res">${res}</div><div>${fmtDur(dur)}</div></div>
     <div class="m-main"><div class="m-top"><div class="mch">${cImg(me.championId)}<span>${me.champLevel}</span></div>${ssHTML(me)}
       <div class="kda"><div class="n">${me.kills}<i>/</i><span class="d">${me.deaths}</span><i>/</i>${me.assists}</div><div class="r ${kcls(r)}">${r}${r === 'Perfect' ? '' : ':1'} 평점</div></div>
       <div class="mstats"><div>킬관여 <b>${a.kp}%</b></div><div>CS <b>${a.cs}</b> (${(a.cs / min).toFixed(1)})</div><div>시야 <b>${me.visionScore}</b> · OP <b>${me._s.toFixed(1)}</b></div></div></div>
+      ${titlesRow(tl)}
       <div class="m-bottom">${itemsHTML(me)}${badges.join('')}</div></div>
     <div class="m-players">${players}</div>
     <div class="m-exp">${ICON.chev}</div></div>`;
@@ -924,7 +1077,7 @@ function teamTable(a, list, tid, maxD, maxT, title) {
   return `<table class="tt"><thead><tr><th class="${w ? 'w' : 'l'}">${title}</th><th>OP 스코어</th><th>KDA</th><th>피해량</th><th>골드</th><th>CS</th><th>시야</th><th>아이템</th></tr></thead><tbody>${list.map(p => {
     const r = ratioOf(p.kills, p.deaths, p.assists), cs = p.totalMinionsKilled + p.neutralMinionsKilled;
     const tag = p._b === 'MVP' ? '<em class="mvp">MVP</em>' : p._b === 'ACE' ? '<em class="ace">ACE</em>' : `<em>${p._r}위</em>`;
-    return `<tr class="${p.puuid === P.puuid ? 'me' : p.win ? 'win' : 'lose'}"><td><div class="tp"><div class="mch">${cImg(p.championId)}<span>${p.champLevel}</span></div>${ssHTML(p)}<div style="min-width:0"><a class="nm" href="${sumLink(P.pf, pname(p), ptag(p))}" style="display:block">${esc(pname(p))}</a><div class="tg">#${esc(ptag(p))}</div></div></div></td>
+    return `<tr class="${p.puuid === P.puuid ? 'me' : p.win ? 'win' : 'lose'}"><td><div class="tp"><div class="mch">${cImg(p.championId)}<span>${p.champLevel}</span></div>${ssHTML(p)}<div style="min-width:0"><a class="nm" href="${sumLink(P.pf, pname(p), ptag(p))}" style="display:block">${esc(pname(p))}</a><div class="tg">#${esc(ptag(p))}</div>${p._t && p._t[0] ? titleChip(p._t[0], true) : ''}</div></div></td>
     <td><span class="score">${p._s.toFixed(1)} ${tag}</span></td>
     <td><b class="${kcls(r)}">${p.kills}/<span class="d">${p.deaths}</span>/${p.assists}</b><div class="mute" style="font-size:11px">${r}${r === 'Perfect' ? '' : ':1'}</div></td>
     <td class="dmg"><div class="v">${num(p.totalDamageDealtToChampions)} / <span class="mute">${num(p.totalDamageTaken)}</span></div><div class="bars"><div class="bar"><i style="width:${pct(p.totalDamageDealtToChampions, maxD)}%"></i></div><div class="bar t"><i style="width:${pct(p.totalDamageTaken, maxT)}%"></i></div></div></td>
@@ -1075,6 +1228,9 @@ document.addEventListener('click', async e => {
     else { fav.unshift({ pf: P.pf, name: a.gameName, tag: a.tagLine, icon: P.data.summoner.profileIconId, tier: tierText(solo), demo: isDemo }); toast('즐겨찾기에 추가했습니다.'); }
     LS.set('favs', fav.slice(0, 12)); const b = t.closest('button'); b.classList.toggle('on', isFav()); b.innerHTML = ICON.star(isFav()); return;
   }
+  if (act === 'share') { const u = location.href; try { await navigator.clipboard.writeText(u); toast('프로필 링크를 복사했어요.'); } catch { toast(u); } return; }
+  if (act === 'cf-clear') { P.champ = ''; return applyCF(); }
+  const cf = t.closest('#side-champs .row[data-cf]'); if (cf) { P.champ = P.champ === cf.dataset.cf ? '' : cf.dataset.cf; applyCF(); if (P.champ) $('#cf-bar').scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
   if (act === 'more') return loadMatches(false);
   const qt = t.closest('.qtab');
   if (qt) { $$('.qtab').forEach(x => x.classList.toggle('on', x === qt)); P.queue = qt.dataset.q; P.loading = false; P.token = Symbol(); const tok = P.token; $('#sum-body').innerHTML = '<div class="center"><div class="spin"></div></div>'; P.token = tok; return loadMatches(true); }
