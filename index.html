@@ -1467,7 +1467,7 @@ function drawSpecList(list, pf) {
   list.forEach(g => SPEC.games.set(g.gameId, g));
   const ch = new Map(); list.forEach(g => (g.participants || []).forEach(p => ch.set(p.championId, champName(p.championId))));
   const sel = $('#sp-champ'); if (sel) { const cur = SPEC.champ; sel.innerHTML = '<option value="">챔피언 필터</option>' + [...ch].sort((a, b) => a[1].localeCompare(b[1], 'ko')).map(([id, n]) => `<option value="${id}"${String(id) === cur ? ' selected' : ''}>${esc(n)}</option>`).join(''); }
-  el.innerHTML = list.length ? list.map(g => specRow(g, pf)).join('') : '<div class="card"><div class="empty big">지금 확인된 상위 랭커 게임이 없어요. 1분 뒤 다시 확인해 보세요.</div></div>';
+  el.innerHTML = list.length ? list.map(g => specRow(g, pf)).join('') : '<div class="card"><div class="empty big">상위 랭커 게임을 찾는 중이에요. 1분마다 새 게임이 추가돼요.</div></div>';
   applySpecFilter(); specTick();
 }
 function applySpecFilter() { $$('#sp-list .sg').forEach(r => r.hidden = !!SPEC.champ && !r.dataset.champs.split(',').includes(SPEC.champ)); }
@@ -1482,7 +1482,7 @@ async function loadSpecList(pf) {
     if (tok !== SPEC.tok) return;
     d.games.forEach(g => g._at = at);
     if (!isDemo) LS.set('spec:' + pf, { at, games: d.games.slice(0, 30) });
-    drawSpecList(d.games, pf); $('#sp-upd') && ($('#sp-upd').textContent = '방금 갱신 · ' + d.games.length + '게임');
+    drawSpecList(d.games, pf); $('#sp-upd') && ($('#sp-upd').innerHTML = `진행 중인 상위 랭커 게임 <b style="color:var(--text)">${d.games.length}</b>개 · 방금 갱신 <span class="mute">(1분마다 새 게임을 찾아 추가해요)</span>`);
   } catch (e) { if (tok === SPEC.tok && !$('#sp-list .sg')) $('#sp-list').innerHTML = `<div class="card"><div class="empty big">${esc(e.message)}</div></div>`; }
 }
 async function renderSpectate(pf, name, tag) {
@@ -1497,7 +1497,7 @@ async function renderSpectate(pf, name, tag) {
   const c = !isDemo && LS.get('spec:' + pf, null);
   if (c && Date.now() - c.at < 30 * 60000) { c.games.forEach(g => g._at = c.at); drawSpecList(c.games.filter(g => g.gameStartTime > 0 ? Date.now() - g.gameStartTime < 60 * 60000 : true), pf); $('#sp-upd').textContent = '최신 목록 확인 중…'; }
   loadSpecList(pf);
-  clearInterval(SPEC.auto); SPEC.auto = setInterval(() => { if (!location.hash.startsWith('#/spectate')) return clearInterval(SPEC.auto); if (!document.hidden) loadSpecList(pf); }, 60000);
+  clearInterval(SPEC.auto); SPEC.auto = setInterval(() => { if (!location.hash.startsWith('#/spectate')) return clearInterval(SPEC.auto); if (!document.hidden) loadSpecList(pf); }, 30000);
   if (!name) return;
   $('#sp-one').innerHTML = '<div class="card" style="padding:16px;margin-bottom:12px"><div class="center"><div class="spin"></div></div></div>';
   try {
