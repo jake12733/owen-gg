@@ -423,8 +423,8 @@ function heroVideo(v, bg) {
   if (!v) return; const c = navigator.connection || {};
   if (matchMedia('(prefers-reduced-motion: reduce)').matches || c.saveData || /2g/.test(c.effectiveType || '')) return;
   const k = matchMedia('(max-aspect-ratio: 1/1)').matches ? 'mobile' : 'desktop';
-  v.poster = 'bg-' + k + '-poster.webp';
-  v.innerHTML = '<source src="bg-' + k + '.webm" type=\'video/webm; codecs="vp9"\'><source src="bg-' + k + '.mp4" type="video/mp4">';
+  v.poster = 'bg-video-poster.webp';
+  v.innerHTML = '<source src="bg-video.mp4" type="video/mp4">';
   v.addEventListener('playing', () => { v.classList.add('on'); bg.classList.add('vid-on'); clearInterval(heroTimer); }, { once: true });
   const go = () => { v.preload = 'auto'; v.load(); const p = v.play(); if (p && p.catch) p.catch(() => {}); };
   (window.requestIdleCallback || ((f) => setTimeout(f, 150)))(go, { timeout: 1200 });
