@@ -91,6 +91,42 @@ img{display:block}
 .rot{display:flex;flex-wrap:wrap;gap:6px}
 .rot img{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);transition:.15s}
 .rot img:hover{transform:translateY(-2px);border-color:var(--gold)}
+/* home v2: 깔끔한 글래스 레이아웃 */
+.hero-in{position:relative;z-index:1;width:min(760px,100%);display:flex;flex-direction:column;align-items:center}
+.hero-bg:after{background:radial-gradient(ellipse 55% 60% at 50% 46%,rgba(6,9,15,.72),rgba(6,9,15,.25) 70%),linear-gradient(180deg,rgba(8,11,18,0) 62%,var(--bg))!important}
+.eyebrow{display:inline-flex;gap:9px;align-items:center;padding:7px 15px;border-radius:30px;background:rgba(8,11,18,.55);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(10px);font-size:12.5px;font-weight:700;color:#dfe5ef;margin-bottom:20px;letter-spacing:.2px}
+.ldot{width:7px;height:7px;border-radius:50%;background:#2fd27a;animation:ldot 2s infinite}
+@keyframes ldot{0%{box-shadow:0 0 0 0 rgba(47,210,122,.6)}70%{box-shadow:0 0 0 8px rgba(47,210,122,0)}100%{box-shadow:0 0 0 0 rgba(47,210,122,0)}}
+.hero h1{filter:drop-shadow(0 8px 30px rgba(0,0,0,.55))}
+.hero p.tag{color:#d6dce7!important;font-size:16px!important;margin:14px 0 30px!important;text-shadow:0 2px 14px rgba(0,0,0,.85)}
+.hero .sform.big{width:100%;background:rgba(9,13,21,.78);border-color:rgba(255,255,255,.14);box-shadow:0 22px 60px rgba(0,0,0,.45);backdrop-filter:blur(16px)}
+.hero .sform.big:focus-within{border-color:var(--teal);box-shadow:0 0 0 4px rgba(10,200,185,.15),0 22px 60px rgba(0,0,0,.45)}
+.hero-hint{color:#aab3c4!important;text-shadow:0 1px 8px rgba(0,0,0,.9)}
+.hero .notice{width:100%;backdrop-filter:blur(14px);background:rgba(30,24,10,.7)}
+.hp,.qk,.rotw{background:rgba(9,13,21,.66);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.1)}
+.hp{width:100%;margin-top:26px;border-radius:18px;padding:12px 12px 14px}
+.hp-tabs{display:flex;gap:4px;margin-bottom:10px}
+.hp-tabs button{font-size:12.5px;font-weight:800;padding:6px 12px;border-radius:9px;color:var(--sub);transition:.15s}
+.hp-tabs button span{font-size:11px;color:var(--mute);margin-left:3px}
+.hp-tabs button.on{background:rgba(255,255,255,.08);color:var(--text)}
+.hp .chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.hp .chips::-webkit-scrollbar{display:none}
+.hp .rchip{flex:none;background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08)}
+.hp .rchip:hover{background:rgba(255,255,255,.08);border-color:rgba(240,210,140,.35)}
+.quick{width:100%;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+.qk{display:flex;flex-direction:column;gap:6px;padding:15px 14px;border-radius:16px;transition:transform .18s,border-color .18s,background .18s}
+.qk:hover{transform:translateY(-3px);border-color:rgba(240,210,140,.45);background:rgba(14,19,30,.8)}
+.qk i{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;margin-bottom:4px;background:linear-gradient(135deg,rgba(240,210,140,.22),rgba(10,200,185,.16));color:#f0d28c;box-shadow:inset 0 0 0 1px rgba(240,210,140,.22)}
+.qk i svg{width:18px;height:18px}
+.qk b{font-size:14px;font-weight:800}
+.qk span{font-size:12px;color:var(--sub)}
+.rotw{width:100%;margin-top:12px;display:flex;align-items:center;gap:14px;padding:10px 14px;border-radius:16px}
+.rotw h3{font-size:11.5px;line-height:1.35;color:var(--sub);font-weight:800;white-space:nowrap}
+.rotw .rot{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:5px}
+.rotw .rot::-webkit-scrollbar{display:none}
+.rotw .rot img{width:34px;height:34px;border-radius:9px;flex:none}
+.demo-link{margin-top:16px;font-size:12.5px;color:#aab3c4;text-shadow:0 1px 8px rgba(0,0,0,.9);transition:color .15s}
+.demo-link:hover{color:var(--gold2)}
 
 /* cards */
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
@@ -638,6 +674,7 @@ footer{border-top:1px solid var(--line);padding:26px 20px;text-align:center;colo
   .form-row{grid-template-columns:1fr}
   .kda{width:92px}
   .nav{display:none}
+  .quick{grid-template-columns:1fr 1fr}.eyebrow{font-size:11.5px}
   .gnb a{min-width:92px;font-size:13px}
   .ms-grid{grid-template-columns:1fr}.ms-in{grid-template-columns:1fr}.ms-side{width:auto;flex-direction:row}
   .auth-box .btn.ghost{display:none}
@@ -1032,6 +1069,7 @@ window.addEventListener('hashchange', route);
 
 /* ================= home ================= */
 let heroTimer;
+let HOME_TABS = {}, HOME_CHIP = null;
 function renderHome() {
   clearInterval(heroTimer);
   const rec = LS.get('recent', []), fav = LS.get('favs', []);
@@ -1040,21 +1078,30 @@ function renderHome() {
   if (!serverOK) notice = IS_LOCAL ? `<div class="notice"><div><b>로컬 서버가 실행되지 않았어요.</b><br>실제 전적을 보려면 폴더의 <b>start.bat</b>을 실행하세요. 지금은 데모 데이터로 체험할 수 있어요.</div><a class="btn gold" href="#/demo/kr/${enc('밤의파수꾼')}-KR1">데모 보기</a></div>` : `<div class="notice"><div><b>전적 서버에 연결할 수 없어요.</b><br>잠시 후 다시 시도해 주세요. 그동안 데모 데이터로 체험할 수 있어요.</div><a class="btn gold" href="#/demo/kr/${enc('밤의파수꾼')}-KR1">데모 보기</a></div>`;
   else if (SRV && SRV.ownerRequired) notice = `<div class="notice"><div><b>공개 버전은 데모 모드로 동작해요.</b><br>Riot 정책상 개발용 키는 운영자 전용이에요. 운영자는 ⚙️ 설정에서 소유자 코드를 입력하면 실제 전적을 볼 수 있어요.</div><a class="btn gold" href="#/demo/kr/${enc('밤의파수꾼')}-KR1">데모 보기</a></div>`;
   else if (!canLive()) notice = `<div class="notice"><div><b>Riot API 키가 필요해요.</b><br>설정에서 키를 입력하면 실제 전적이 조회됩니다. 키 없이도 데모로 체험 가능해요.</div><button class="btn gold" data-act="settings">키 입력</button></div>`;
+  const tabs = [rec.length && ['recent', '최근 검색', rec], fav.length && ['favs', '즐겨찾기', fav]].filter(Boolean);
+  const cur = tabs.find(t => t[0] === LS.get('homeTab', 'recent')) || tabs[0];
+  const QK = [['#/spectate', '관전하기', '지금 진행 중인 랭커 게임', 'live'], ['#/champions', '챔피언 분석', '티어 · 승률 · 아이템', 'chart'], ['#/ranking', '랭킹', '챌린저 · 명예의 전당', 'trophy'], ['#/multi', '멀티서치', '로비 채팅 붙여넣기', 'users']];
+  const QI = { live: ICON.live, chart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>', trophy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>', users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"/></svg>' };
   app.innerHTML = `<section class="hero"><div class="hero-bg" id="hero-bg"><div></div><div></div><video id="hero-vid" muted loop playsinline autoplay preload="none" disablepictureinpicture disableremoteplayback aria-hidden="true" tabindex="-1"></video></div>
-    <div class="hero-logo" role="img" aria-label="OWEN WEB 로고"></div><h1><b>Owen.gg</b></h1><p class="tag">리그 오브 레전드 전적 검색 · 실시간 랭크 · 인게임 분석</p>
-    ${searchForm(true)}
-    <div class="hero-hint"><kbd>이름#태그</kbd> 형식으로 검색하세요. 태그를 생략하면 #${DEFAULT_TAG[curPf]}로 검색합니다.</div>
-    ${notice}
-    ${fav.length ? `<div class="home-row"><h3>즐겨찾기</h3><div class="chips">${fav.map(r => chip(r, 'favs')).join('')}</div></div>` : ''}
-    ${rec.length ? `<div class="home-row"><h3>최근 검색</h3><div class="chips">${rec.map(r => chip(r, 'recent')).join('')}</div></div>` : ''}
-    <div class="home-row" id="rot-row" hidden><h3>이번 주 무료 챔피언</h3><div class="rot" id="rot"></div></div>
-    <div class="home-row" style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn" href="#/ranking">${ICON.sword} 챌린저 랭킹 보기</a> <a class="btn" href="#/demo/kr/${enc('밤의파수꾼')}-KR1">데모 프로필 체험</a></div>
+    <div class="hero-in">
+      <div class="eyebrow"><span class="ldot"></span>실시간 전적 · 관전 · 챔피언 분석</div>
+      <h1><b>Owen.gg</b></h1>
+      <p class="tag">소환사 이름#태그 하나로 전적, 티어, 인게임 정보를 한 번에</p>
+      ${searchForm(true)}
+      <div class="hero-hint"><kbd>이름#태그</kbd> 형식으로 검색하세요 · 태그를 생략하면 #${DEFAULT_TAG[curPf]}</div>
+      ${notice}
+      ${cur ? `<div class="hp"><div class="hp-tabs">${tabs.map(t => `<button data-hp="${t[0]}" class="${t === cur ? 'on' : ''}">${t[1]} <span>${t[2].length}</span></button>`).join('')}</div><div class="chips" id="hp-chips">${cur[2].map(r => chip(r, cur[0])).join('')}</div></div>` : ''}
+      <div class="quick">${QK.map(([h, t, d, i]) => `<a class="qk" href="${h}"><i>${QI[i]}</i><b>${t}</b><span>${d}</span></a>`).join('')}</div>
+      <div class="rotw" id="rot-row" hidden><h3>이번 주<br>무료 챔피언</h3><div class="rot" id="rot"></div></div>
+      <a class="demo-link" href="#/demo/kr/${enc('밤의파수꾼')}-KR1">API 키 없이 데모 프로필 둘러보기 →</a>
+    </div>
   </section>`;
+  HOME_TABS = Object.fromEntries(tabs.map(t => [t[0], t[2]])); HOME_CHIP = chip;
   const bg = $('#hero-bg'), slides = $$('div', bg); let k = 0;
   const show = () => { const c = DD.champList[Math.floor(Math.random() * DD.champList.length)]; const s = slides[k % 2]; const img = new Image(); img.onload = () => { s.style.backgroundImage = `url(${img.src})`; slides.forEach(x => x.classList.remove('on')); s.classList.add('on'); k++; }; img.src = `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${c.id}_0.jpg`; };
   show(); heroTimer = setInterval(show, 7000);
   heroVideo($('#hero-vid'), bg);
-  (canLive() ? Live : Demo).rotation(curPf).then(d => { const el = $('#rot'); if (!el) return; el.innerHTML = (d.freeChampionIds || []).map(id => cImg(id)).join(''); $('#rot-row').hidden = false; }).catch(() => { });
+  (canLive() ? Live : Demo).rotation(curPf).then(d => { const el = $('#rot'); if (!el) return; const ids = d.freeChampionIds || d.sr || []; if (!ids.length) return; el.innerHTML = ids.map(id => `<a href="#/champions/${id}">${cImg(id)}</a>`).join(''); $('#rot-row').hidden = false; }).catch(() => { });
 }
 
 /* ================= profile ================= */
@@ -1970,6 +2017,7 @@ document.addEventListener('click', async e => {
   if (act === 'ms-go') return runMulti();
   if (act === 'ms-clear') { $('#ms-txt').value = ''; LS.set('multi', ''); $('#ms-out').innerHTML = ''; return; }
   if (act === 'sp-refresh') return route();
+  const hpb = t.closest('[data-hp]'); if (hpb) { const k = hpb.dataset.hp; LS.set('homeTab', k); $$('.hp-tabs button').forEach(b => b.classList.toggle('on', b === hpb)); $('#hp-chips').innerHTML = (HOME_TABS[k] || []).map(r => HOME_CHIP(r, k)).join(''); return; }
   if (act === 'sp-reload') { $('#sp-upd').textContent = '갱신 중…'; return loadSpecList($('#sp-pf2')?.value || curPf); }
   if (act === 'lol-path') return openLolPath();
   if (act === 'lol-path-save') { const v = $('#lol-path').value.trim().replace(/[\\/]+$/, '').replace(/[\\/]Game$/i, ''); if (!v) return; LS.set('lolPath', v); $('#lol-msg').className = 'msg ok'; $('#lol-msg').textContent = '저장했어요: ' + v; return; }
