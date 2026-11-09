@@ -530,7 +530,41 @@ footer{border-top:1px solid var(--line);padding:26px 20px;text-align:center;colo
 .msc .chs div{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--sub)}
 .msc .chs img{width:24px;height:24px;border-radius:6px}
 .msc .chs b{color:var(--text)}
+
+/* 관전하기 목록 */
+.sg{display:grid;grid-template-columns:1fr 220px 1fr;border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:10px;background:var(--card)}
+.sg.mine{border-color:var(--gold2);box-shadow:0 0 0 1px rgba(240,210,140,.25)}
+.sg-team{display:flex;flex-direction:column}
+.sg-team.b{background:linear-gradient(90deg,rgba(61,123,255,.13),rgba(61,123,255,.05))}
+.sg-team.r{background:linear-gradient(270deg,rgba(239,69,97,.13),rgba(239,69,97,.05))}
+.spr{display:flex;align-items:center;gap:6px;height:48px;padding:0 8px;border-top:1px solid rgba(255,255,255,.04)}
+.spr:first-child{border-top:0}
+.sg-team.r .spr{flex-direction:row-reverse}
+.spr .nm{flex:1;min-width:0;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px}
+.sg-team.r .spr .nm{text-align:left}
+.spr .nm a{font-weight:800;color:var(--text)}.spr .nm a:hover{color:var(--teal)}
+.spr .nm span{color:var(--mute);font-size:11.5px}
+.spr .ch{width:40px;height:40px;border-radius:9px;flex:none}
+.spr .sp2{display:flex;flex-direction:column;gap:2px;flex:none}
+.spr .sp2 img{width:19px;height:19px;border-radius:4px}
+.spr .ru{width:24px;height:24px;border-radius:50%;background:#0008;flex:none}
+.spr .ru.s{width:18px;height:18px;padding:2px;opacity:.75}
+.tb{min-width:30px;height:20px;padding:0 5px;border-radius:5px;font-size:11px;font-weight:900;display:grid;place-items:center;flex:none;color:#fff}
+.tb.CHALLENGER{background:linear-gradient(135deg,#3aa0c8,#2b6f8f)}.tb.GRANDMASTER{background:linear-gradient(135deg,#c0303e,#8a1d29)}.tb.MASTER{background:linear-gradient(135deg,#a24bd6,#6d2a96)}
+.tb.none{background:transparent}
+.sg-mid{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:14px 10px;border-left:1px solid var(--line);border-right:1px solid var(--line);text-align:center;background:rgba(255,255,255,.015)}
+.sg-mid b{font-size:15px;font-weight:900}
+.sg-mid small{color:var(--mute);font-size:12px}
+.sg-bans{display:flex;justify-content:space-between;width:100%;gap:10px}
+.sg-bans div{display:flex;flex-wrap:wrap;gap:3px;width:50%}
+.sg-bans div:last-child{justify-content:flex-end}
+.sg-bans img{width:24px;height:24px;border-radius:5px;filter:grayscale(.6) brightness(.8)}
+.sg-bans .b img{box-shadow:0 0 0 1px rgba(61,123,255,.6)}.sg-bans .r img{box-shadow:0 0 0 1px rgba(239,69,97,.6)}
+.sg-mid .btn{height:34px;padding:0 18px}
+.sg-t{font-size:12.5px;color:var(--sub);font-variant-numeric:tabular-nums}
+.sp-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:6px 0 12px;font-size:12.5px;color:var(--mute)}
 @media (max-width:980px){
+  .sg{grid-template-columns:1fr}.sg-mid{border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);order:0}.sg-team.r .spr{flex-direction:row}.sg-team.r .spr .nm{text-align:right}
   .cgrid{grid-template-columns:1fr}.ms-grid{grid-template-columns:repeat(2,1fr)}.ct .hide-m{display:none}
   .form-row{grid-template-columns:1fr 1fr}.form-row>.ftags{grid-column:1/-1}
   .pgrid{grid-template-columns:1fr}
@@ -910,7 +944,7 @@ function renderTopSearch() {
 }
 document.addEventListener('submit', e => {
   if (e.target.id === 'auth-form') { e.preventDefault(); return emailAuth(e.target); }
-  if (e.target.id === 'sp-form') { e.preventDefault(); const pf = $('#sp-pf').value, q = e.target.q.value.trim(); if (!q) return; const [n, t] = riotSplit(q, pf); curPf = pf; LS.set('pf', pf); location.hash = `#/spectate/${pf}/${enc(n)}-${enc(t)}`; return; }
+  if (e.target.id === 'sp-form') { e.preventDefault(); const pf = $('#sp-pf2')?.value || curPf, q = e.target.q.value.trim(); if (!q) return; const [n, t] = riotSplit(q, pf); curPf = pf; LS.set('pf', pf); location.hash = `#/spectate/${pf}/${enc(n)}-${enc(t)}`; return; }
   const f = e.target.closest('.sform'); if (!f) return; e.preventDefault();
   const pf = f.pf.value; let q = f.q.value.trim(); if (!q) return;
   curPf = pf; LS.set('pf', pf);
@@ -1414,26 +1448,91 @@ function liveHTML(g, pf, mePuuid) {
 }
 function liveTick(g) { clearInterval(liveTimer); const tick = () => { const el = $('#live-t'); if (!el) return clearInterval(liveTimer); const s = g.gameStartTime > 0 ? (Date.now() - g.gameStartTime) / 1000 : g.gameLength; el.textContent = fmtDur(Math.max(0, s)) + ' 경과'; }; tick(); liveTimer = setInterval(tick, 1000); }
 
-/* ---- 관전하기 ---- */
+/* ---- 관전하기 (진행 중 게임 목록 + .bat 다운로드) ---- */
+const SPEC = { games: new Map(), champ: '', timer: 0, tok: null };
+const MAPS = { 11: '소환사의 협곡', 12: '칼바람 나락', 30: '아레나', 21: '넥서스 블리츠' };
+const TB = { CHALLENGER: 'C', GRANDMASTER: 'GM', MASTER: 'M' };
+const lolPath = () => LS.get('lolPath', 'C:\\Riot Games\\League of Legends');
+function specElapsed(g) { const s = g.gameStartTime > 0 ? (Date.now() - g.gameStartTime) / 1000 : (g.gameLength || 0) + (Date.now() - (g._at || Date.now())) / 1000; return fmtDur(Math.max(0, s)); }
+function specRow(g, pf, mine) {
+  const pl = (p, side) => { const [n, t] = (p.riotId || '소환사#').split('#'); const tr = p.tier; return `<div class="spr">${tr && TB[tr.tier] ? `<span class="tb ${tr.tier}" data-tt="${TIERS[tr.tier]?.[0] || tr.tier}" data-tb="${num(tr.lp)} LP">${TB[tr.tier]}</span>` : '<span class="tb none"></span>'}${runeImg(p.perks?.perkIds?.[0], 'ru')}${runeImg(p.perks?.perkSubStyle, 'ru s')}<div class="nm"><a href="${sumLink(pf, n, t)}">${esc(n)}</a><span>#${esc(t)}</span></div><div class="sp2">${spellImg(p.spell1Id)}${spellImg(p.spell2Id)}</div><img class="ch" src="${champImg(p.championId)}" alt="" data-tt="${esc(champName(p.championId))}"></div>`; };
+  const T = id => (g.participants || []).filter(p => p.teamId === id), bans = id => (g.bannedChampions || []).filter(b => b.teamId === id && b.championId > 0).map(b => `<img src="${champImg(b.championId)}" alt="" data-tt="밴 · ${esc(champName(b.championId))}">`).join('');
+  return `<div class="sg${mine ? ' mine' : ''}" data-gid="${g.gameId}" data-champs="${(g.participants || []).map(p => p.championId).join(',')}"><div class="sg-team b">${T(100).map(p => pl(p)).join('')}</div>
+    <div class="sg-mid"><b>${QUEUES[g.gameQueueConfigId] || g.gameMode || '게임'}</b><small>&lt; ${MAPS[g.mapId] || '맵'} &gt;</small><div class="sg-bans"><div class="b">${bans(100)}</div><div class="r">${bans(200)}</div></div><button class="btn primary" data-spec="${g.gameId}">관전하기</button><span class="sg-t" data-gt="${g.gameId}">${specElapsed(g)}</span></div>
+    <div class="sg-team r">${T(200).map(p => pl(p)).join('')}</div></div>`;
+}
+function specTick() { clearInterval(SPEC.timer); SPEC.timer = setInterval(() => { if (!location.hash.startsWith('#/spectate')) return clearInterval(SPEC.timer); $('[data-gt]').forEach(el => { const g = SPEC.games.get(+el.dataset.gt); if (g) el.textContent = specElapsed(g); }); }, 1000); }
+function drawSpecList(list, pf) {
+  const el = $('#sp-list'); if (!el) return;
+  list.forEach(g => SPEC.games.set(g.gameId, g));
+  const ch = new Map(); list.forEach(g => (g.participants || []).forEach(p => ch.set(p.championId, champName(p.championId))));
+  const sel = $('#sp-champ'); if (sel) { const cur = SPEC.champ; sel.innerHTML = '<option value="">챔피언 필터</option>' + [...ch].sort((a, b) => a[1].localeCompare(b[1], 'ko')).map(([id, n]) => `<option value="${id}"${String(id) === cur ? ' selected' : ''}>${esc(n)}</option>`).join(''); }
+  el.innerHTML = list.length ? list.map(g => specRow(g, pf)).join('') : '<div class="card"><div class="empty big">지금 확인된 상위 랭커 게임이 없어요. 1분 뒤 다시 확인해 보세요.</div></div>';
+  applySpecFilter(); specTick();
+}
+function applySpecFilter() { $('#sp-list .sg').forEach(r => r.hidden = !!SPEC.champ && !r.dataset.champs.split(',').includes(SPEC.champ)); }
+async function demoGames() {
+  const out = []; for (let i = 0; i < 40 && out.length < 6; i++) { try { const g = await Demo.live('kr', 'demo:spec' + i + '#KR1'); g.gameId = 9000000000 + i; g.observers = { encryptionKey: '' }; g.platformId = 'KR'; const r = (i * 7919) % 97; g.participants.forEach((p, j) => p.tier = (r + j) % 4 ? { tier: ['CHALLENGER', 'GRANDMASTER', 'MASTER'][(r + j) % 3], lp: 300 + ((r * 31 + j * 97) % 1500) } : null); out.push(g); } catch { } }
+  return out;
+}
+async function loadSpecList(pf) {
+  const tok = SPEC.tok, at = Date.now();
+  try {
+    const d = isDemo ? { games: await demoGames(), updated: Date.now() } : await API.get(`spectate?platform=${pf}`);
+    if (tok !== SPEC.tok) return;
+    d.games.forEach(g => g._at = at);
+    if (!isDemo) LS.set('spec:' + pf, { at, games: d.games.slice(0, 30) });
+    drawSpecList(d.games, pf); $('#sp-upd') && ($('#sp-upd').textContent = '방금 갱신 · ' + d.games.length + '게임');
+  } catch (e) { if (tok === SPEC.tok && !$('#sp-list .sg')) $('#sp-list').innerHTML = `<div class="card"><div class="empty big">${esc(e.message)}</div></div>`; }
+}
 async function renderSpectate(pf, name, tag) {
-  curPf = pf; const tok = P.sess = Symbol();
-  const chips = [...LS.get('favs', []), ...LS.get('recent', [])].filter((r, i, a) => a.findIndex(x => x.pf === r.pf && x.name === r.name && x.tag === r.tag) === i).slice(0, 12);
-  app.innerHTML = `<div class="wrap pg">${pageHead('관전하기', '소환사가 지금 플레이 중인 게임을 실시간으로 확인해요.' + (isDemo ? ' · <span style="color:var(--gold2)">데모 데이터</span>' : ''))}
-    <form class="sp-form" id="sp-form" autocomplete="off">${pfSelect('sp-pf', pf).replace('class="sel"', 'class="sel ipt" style="min-width:0;width:110px"')}<input class="ipt" name="q" placeholder="소환사 이름#태그 (예: Hide on bush#KR1)" value="${name ? esc(name + '#' + tag) : ''}"><button class="btn primary" type="submit" style="height:40px">게임 확인</button></form>
-    ${chips.length ? `<div class="sp-chips"><span class="mute" style="font-size:12px;align-self:center;margin-right:4px">즐겨찾기·최근 검색</span>${chips.map(r => `<a href="#/spectate/${r.pf}/${enc(r.name)}-${enc(r.tag)}">${esc(r.name)}<span class="mute">#${esc(r.tag)}</span></a>`).join('')}</div>` : ''}
-    <div class="card" id="sp-body" style="padding:18px">${name ? '<div class="center"><div class="spin"></div></div>' : '<div class="empty big">소환사를 검색하면 진행 중인 게임의 양 팀 구성, 룬, 스펠, 밴을 볼 수 있어요.</div>'}</div></div>`;
+  curPf = pf; const tok = SPEC.tok = P.sess = Symbol();
+  app.innerHTML = `<div class="wrap pg">${pageHead('관전하기', '지금 진행 중인 챌린저·그랜드마스터 게임이에요. 관전하기를 누르면 관전 파일(.bat)을 받을 수 있어요.' + (isDemo ? ' · <span style="color:var(--gold2)">데모 데이터</span>' : ''), `${pfSelect('sp-pf2', pf).replace('class="sel"', 'class="sel ipt" style="min-width:0;width:130px"')}<select class="sel ipt" id="sp-champ" style="min-width:0;width:150px"><option value="">챔피언 필터</option></select><button class="btn" data-act="lol-path">LOL 경로 설정하기</button>`)}
+    <form class="sp-form" id="sp-form" autocomplete="off"><input class="ipt" name="q" placeholder="소환사로 찾기: 이름#태그 (예: Hide on bush#KR1)" value="${name ? esc(name + '#' + tag) : ''}"><button class="btn" type="submit" style="height:40px">게임 찾기</button></form>
+    <div id="sp-one"></div>
+    <div class="sp-top"><span id="sp-upd">불러오는 중…</span><button class="btn" data-act="sp-reload" style="height:32px">새로고침</button></div>
+    <div id="sp-list"><div class="center"><div class="spin"></div></div></div>
+    <div class="note">관전 방법: 관전하기 → 파일 저장 → 받은 .bat 파일 실행. 롤이 설치되어 있어야 하고, 설치 경로가 기본(C:\\Riot Games\\League of Legends)과 다르면 'LOL 경로 설정하기'에서 바꿔 주세요. 윈도우가 경고를 띄우면 '추가 정보 → 실행'을 누르면 돼요.</div></div>`;
+  SPEC.games = new Map();
+  const c = !isDemo && LS.get('spec:' + pf, null);
+  if (c && Date.now() - c.at < 30 * 60000) { c.games.forEach(g => g._at = c.at); drawSpecList(c.games.filter(g => g.gameStartTime > 0 ? Date.now() - g.gameStartTime < 60 * 60000 : true), pf); $('#sp-upd').textContent = '최신 목록 확인 중…'; }
+  loadSpecList(pf);
+  clearInterval(SPEC.auto); SPEC.auto = setInterval(() => { if (!location.hash.startsWith('#/spectate')) return clearInterval(SPEC.auto); if (!document.hidden) loadSpecList(pf); }, 60000);
   if (!name) return;
+  $('#sp-one').innerHTML = '<div class="card" style="padding:16px;margin-bottom:12px"><div class="center"><div class="spin"></div></div></div>';
   try {
     let puuid = !isDemo && PUU.get(pf, name, tag);
     if (!puuid) { const d = await src().profile(pf, name, tag); puuid = d.account.puuid; }
     const g = await src().live(pf, puuid);
     if (tok !== P.sess) return;
-    $('#sp-body').innerHTML = liveHTML(g, pf, puuid) + `<div style="display:flex;gap:8px;margin-top:14px"><a class="btn" href="${sumLink(pf, name, tag)}">${esc(name)} 전적 보기</a><button class="btn" data-act="sp-refresh">새로고침</button></div>`;
-    liveTick(g);
-  } catch (e) {
-    if (tok !== P.sess) return;
-    $('#sp-body').innerHTML = `<div class="empty big">${esc(e.message)}</div><div style="display:flex;justify-content:center;gap:8px"><a class="btn" href="${sumLink(pf, name, tag)}">전적 보기</a><button class="btn" data-act="sp-refresh">다시 확인</button></div>`;
+    g._at = Date.now(); if (isDemo) { g.gameId = g.gameId || 8999999999; g.observers = { encryptionKey: '' }; }
+    SPEC.games.set(g.gameId, g);
+    $('#sp-one').innerHTML = `<div class="sp-top" style="margin-top:0"><span><b style="color:var(--text)">${esc(name)}</b>님이 플레이 중인 게임</span><a class="btn" href="${sumLink(pf, name, tag)}" style="height:32px">전적 보기</a></div>` + specRow(g, pf, true);
+    specTick();
+  } catch (e) { if (tok === P.sess) $('#sp-one').innerHTML = `<div class="card" style="padding:16px;margin-bottom:12px"><div class="empty">${esc(name)}#${esc(tag)}: ${esc(e.message)}</div></div>`; }
+}
+async function specDownload(id) {
+  const g = SPEC.games.get(+id); if (!g) return;
+  const key = g.observers?.encryptionKey;
+  if (!key) return toast('데모 게임은 실제로 관전할 수 없어요. 실제 게임에서 이용해 주세요.');
+  const P_ = String(g.platformId || curPf).toUpperCase(), host = `spectator.${P_.toLowerCase()}.lol.pvp.net:8080`;
+  const bat = ['@echo off', 'chcp 65001 >nul', 'title Owen.gg 관전하기', `set "LOL=${lolPath()}"`,
+    'if exist "%LOL%\\Game\\League of Legends.exe" (cd /d "%LOL%\\Game") else if exist "%LOL%\\League of Legends.exe" (cd /d "%LOL%") else (',
+    '  echo 롤 설치 경로를 찾을 수 없어요: %LOL%', '  echo Owen.gg 관전하기 페이지의 LOL 경로 설정하기에서 경로를 바꾼 뒤 다시 받아 주세요.', '  pause', '  exit /b', ')',
+    `start "" "League of Legends.exe" "spectator ${host} ${key} ${g.gameId} ${P_}" "-UseRads" "-GameBaseDir=.." "-Locale=ko_KR" "-SkipBuild" "-EnableCrashpad=true"`, 'exit'].join('\r\n') + '\r\n';
+  const fname = `owen_${g.gameId}.bat`, blob = new Blob([bat], { type: 'application/x-bat' });
+  if (window.showSaveFilePicker) {
+    try { const h = await showSaveFilePicker({ suggestedName: fname, types: [{ description: 'Windows Batch File', accept: { 'application/x-bat': ['.bat'] } }] }); const w = await h.createWritable(); await w.write(blob); await w.close(); toast('저장했어요. 받은 파일을 실행하면 관전이 시작돼요.'); return; }
+    catch (e) { if (e.name === 'AbortError') return; }
   }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = fname; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  toast('관전 파일을 받았어요. 실행하면 관전이 시작돼요.');
+}
+function openLolPath() {
+  modal('LOL 경로 설정하기', `<div class="sub" style="font-size:13px;line-height:1.7">리그 오브 레전드가 설치된 폴더를 입력하세요. 관전 파일이 이 경로에서 게임을 실행해요.</div>
+    <div class="field"><input id="lol-path" value="${esc(lolPath())}" placeholder="C:\\Riot Games\\League of Legends"></div>
+    <ol class="steps"><li>바탕화면의 롤 바로가기를 마우스 오른쪽 클릭 → 속성</li><li>바로가기 탭의 <b>시작 위치</b>를 복사</li><li>위 칸에 붙여넣고 저장</li></ol>
+    <div style="display:flex;gap:8px;margin-top:16px"><button class="btn primary" data-act="lol-path-save">저장</button><button class="btn" data-act="lol-path-reset">기본값으로</button></div><div class="msg" id="lol-msg"></div>`);
 }
 
 /* ---- 챔피언 분석 ---- */
@@ -1773,6 +1872,11 @@ document.addEventListener('click', async e => {
   if (act === 'ms-go') return runMulti();
   if (act === 'ms-clear') { $('#ms-txt').value = ''; LS.set('multi', ''); $('#ms-out').innerHTML = ''; return; }
   if (act === 'sp-refresh') return route();
+  if (act === 'sp-reload') { $('#sp-upd').textContent = '갱신 중…'; return loadSpecList($('#sp-pf2')?.value || curPf); }
+  if (act === 'lol-path') return openLolPath();
+  if (act === 'lol-path-save') { const v = $('#lol-path').value.trim().replace(/[\\/]+$/, '').replace(/[\\/]Game$/i, ''); if (!v) return; LS.set('lolPath', v); $('#lol-msg').className = 'msg ok'; $('#lol-msg').textContent = '저장했어요: ' + v; return; }
+  if (act === 'lol-path-reset') { LS.set('lolPath', 'C:\\Riot Games\\League of Legends'); $('#lol-path').value = lolPath(); $('#lol-msg').className = 'msg ok'; $('#lol-msg').textContent = '기본 경로로 되돌렸어요.'; return; }
+  const spb = t.closest('[data-spec]'); if (spb) return specDownload(spb.dataset.spec);
   if (act === 'more') return loadMatches(false);
   const qt = t.closest('.qtab');
   if (qt) { $$('.qtab').forEach(x => x.classList.toggle('on', x === qt)); P.queue = qt.dataset.q; P.loading = false; P.token = Symbol(); const tok = P.token; $('#sum-body').innerHTML = '<div class="center"><div class="spin"></div></div>'; P.token = tok; return loadMatches(true); }
@@ -1794,7 +1898,9 @@ document.addEventListener('input', e => {
   if (e.target.id === 'ms-q') { const q = e.target.value.trim().toLowerCase(); $$('#ms-pick a').forEach(a => a.hidden = !!q && !a.dataset.nm.toLowerCase().includes(q)); }
 });
 document.addEventListener('keydown', e => { if (e.target.id === 'ms-txt' && e.key === 'Enter' && (e.ctrlKey || e.metaKey)) runMulti(); });
-document.addEventListener('change', e => { if (e.target.id === 'rk-pf') { location.hash = '#/ranking/' + e.target.value; } });
+document.addEventListener('change', e => {
+  if (e.target.id === 'sp-champ') { SPEC.champ = e.target.value; return applySpecFilter(); }
+  if (e.target.id === 'sp-pf2') { location.hash = '#/spectate/' + e.target.value; return; } if (e.target.id === 'rk-pf') { location.hash = '#/ranking/' + e.target.value; } });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); if (e.key === '/' && document.activeElement.tagName !== 'INPUT') { const i = $('.sform input'); if (i && i.offsetParent) { e.preventDefault(); i.focus(); } } });
 setInterval(() => { const u = $('#upd'); if (u && P.updated) { const s = (Date.now() - P.updated) / 1000; u.textContent = '최근 업데이트: ' + (s < 60 ? '방금 전' : ago(P.updated)); } }, 30000);
 
