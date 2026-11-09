@@ -288,6 +288,23 @@ img{display:block}
 .tp .nm:hover{color:var(--teal)}
 .tp .tg{font-size:10.5px;color:var(--mute)}
 .score{display:inline-flex;align-items:center;gap:5px;font-weight:800}
+/* MVP 판: 무지개 테두리 + 은은한 무지개 빛 + 반짝임 */
+@keyframes rainbow{to{background-position:300% 0}}
+@keyframes mvpsweep{0%,45%{left:-45%}100%{left:135%}}
+.match.mvp{border-color:transparent;box-shadow:0 0 26px rgba(255,110,200,.22),0 0 52px rgba(80,170,255,.16);animation:mvpglow 4s linear infinite}
+@keyframes mvpglow{0%,100%{box-shadow:0 0 26px rgba(255,110,170,.24),0 0 52px rgba(255,190,90,.12)}33%{box-shadow:0 0 26px rgba(94,255,161,.2),0 0 52px rgba(79,209,255,.16)}66%{box-shadow:0 0 26px rgba(139,123,255,.26),0 0 52px rgba(255,106,213,.16)}}
+.match.mvp:before{background:linear-gradient(180deg,#ff5f6d,#ffc371,#5effa1,#4fd1ff,#8b7bff,#ff6ad5,#ff5f6d);background-size:100% 300%;animation:rainbowv 3s linear infinite;width:6px}
+@keyframes rainbowv{to{background-position:0 300%}}
+.match.mvp:after{content:"";position:absolute;inset:0;border-radius:14px;padding:2.5px;background:linear-gradient(90deg,#ff5f6d,#ffc371,#fff36d,#5effa1,#4fd1ff,#8b7bff,#ff6ad5,#ff5f6d);background-size:300% 100%;animation:rainbow 4s linear infinite;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);pointer-events:none;z-index:3}
+.match.mvp>*:not(.mvp-fx){position:relative;z-index:1}
+.mvp-fx{position:absolute!important;inset:0;overflow:hidden;border-radius:14px;pointer-events:none;z-index:0}
+.mvp-fx:before{content:"";position:absolute;inset:0;background:linear-gradient(110deg,rgba(255,95,109,.2),rgba(255,195,113,.15),rgba(94,255,161,.13),rgba(79,209,255,.18),rgba(139,123,255,.2),rgba(255,106,213,.2),rgba(255,95,109,.2));background-size:300% 100%;animation:rainbow 7s linear infinite}
+.mvp-fx:after{content:"";position:absolute;top:0;bottom:0;width:32%;left:-45%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.14),rgba(255,240,255,.2),rgba(255,255,255,.14),transparent);animation:mvpsweep 3.4s ease-in-out infinite}
+.match.mvp .m-ai b{background:linear-gradient(135deg,#ff5f6d,#ffc371,#5effa1,#4fd1ff,#8b7bff,#ff6ad5,#ff5f6d);background-size:300% 300%;animation:rainbow 3s linear infinite;color:#fff;text-shadow:0 1px 5px rgba(0,0,0,.45);box-shadow:0 0 18px rgba(255,120,210,.45)}
+.match.mvp .m-ai em.mvp{background:linear-gradient(90deg,#ffb36b,#fff36d,#5effa1,#4fd1ff,#c49bff,#ff6ad5,#ffb36b);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:rainbow 3s linear infinite}
+.match.mvp .m-ai em.mvp svg{fill:#ffd36b;color:#ffd36b;filter:drop-shadow(0 0 4px rgba(255,211,107,.8))}
+.match.mvp .m-meta .q{-webkit-text-fill-color:transparent;background:linear-gradient(90deg,#ff8a8a,#ffd36b,#7dffb4,#6fd8ff,#c49bff);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:rainbow 5s linear infinite}
+@media (prefers-reduced-motion:reduce){.match.mvp,.match.mvp:before,.match.mvp:after,.mvp-fx:before,.mvp-fx:after,.match.mvp .m-ai b,.match.mvp .m-ai em.mvp,.match.mvp .m-meta .q{animation:none}}
 .m-ai{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:10px 2px;min-width:0}
 .m-ai small{font-size:10.5px;font-weight:800;color:var(--sub);letter-spacing:.2px}
 .m-ai b{min-width:46px;height:34px;border-radius:9px;display:grid;place-items:center;font-size:19px;font-weight:900;color:#fff;font-variant-numeric:tabular-nums;box-shadow:0 4px 14px rgba(0,0,0,.25)}
@@ -1424,7 +1441,8 @@ function matchRow(a, idx) {
   let players = '';
   if (!arena) { const t1 = ps.filter(p => p.teamId === 100), t2 = ps.filter(p => p.teamId === 200); for (let i = 0; i < 5; i++) for (const p of [t1[i], t2[i]]) players += p ? `<div class="mp-row${p.puuid === P.puuid ? ' me' : ''}"><img src="${champImg(p.championId)}" loading="lazy" alt=""><a href="${sumLink(P.pf, pname(p), ptag(p))}" data-tt="${esc(pname(p))}#${esc(ptag(p))}">${esc(pname(p))}</a></div>` : '<div></div>'; }
   const tl = me._t || [], legend = tl.some(id => TBY[id][1] === 'leg');
-  return `<div class="match ${cls}${legend ? ' legend' : ''}" data-cid="${me.championId}" data-mid="${esc(m.metadata.matchId)}">
+  const isMvp = me._b === 'MVP' && !remake;
+  return `<div class="match ${cls}${legend ? ' legend' : ''}${isMvp ? ' mvp' : ''}" data-cid="${me.championId}" data-mid="${esc(m.metadata.matchId)}">${isMvp ? '<i class="mvp-fx" aria-hidden="true"></i>' : ''}
     <div class="m-meta"><div class="q">${QUEUES[a.q] || '기타'}</div><div data-tt="${new Date(a.end).toLocaleString('ko-KR')}">${ago(a.end)}</div><hr><div class="res">${res}</div><div>${fmtDur(dur)}</div></div>
     <div class="m-main"><div class="m-top"><div class="mch">${cImg(me.championId)}<span>${me.champLevel}</span></div>${ssHTML(me)}
       <div class="kda"><div class="n">${me.kills}<i>/</i><span class="d">${me.deaths}</span><i>/</i>${me.assists}</div><div class="r ${kcls(r)}">${r}${r === 'Perfect' ? '' : ':1'} 평점</div></div>
