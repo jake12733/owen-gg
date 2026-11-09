@@ -137,6 +137,7 @@ async function collectMastery(pf: string, d: any) {
     riot_name: acc.gameName, riot_tag: acc.tagLine, solo_tier: solo?.tier ?? null, solo_rank: solo?.rank ?? null, solo_lp: solo?.leaguePoints ?? null, updated_at: new Date().toISOString(),
   })), "puuid,champion_id", true);
 }
+const specCursor: Record<string, number> = {};
 const routes = {
 
   async validate(q, key) {
@@ -194,6 +195,46 @@ const routes = {
       if (e.status === 404) throw new ApiError(404, '현재 게임 중이 아닙니다.');
       throw e;
     }
+  },
+
+  /* 관전하기 목록: 챌린저·그마 소환사를 매번 조금씩 돌아가며 확인하고, 찾은 게임은 끝날 때까지 DB에 보관 (60초 캐시) */
+  async spectate(q, key) {
+    const pf = plat(q.platform || 'kr');
+    const ck = 'speclist:' + pf; const hit = cGet(ck); if (hit) return hit;
+    const tierOf: Record<string, { tier: string; lp: number }> = {};
+    const lists = await Promise.all(['challengerleagues', 'grandmasterleagues'].map((t) => riot(`https://${pf}.api.riotgames.com/lol/league/v4/${t}/by-queue/RANKED_SOLO_5x5`, key, 600000).catch(() => null)));
+    for (const l of lists) if (l) for (const e of l.entries || []) tierOf[e.puuid] = { tier: l.tier, lp: e.leaguePoints };
+    const cand = [...(lists[0]?.entries || []), ...(lists[1]?.entries || [])].sort((a, b) => b.leaguePoints - a.leaguePoints).slice(0, 400).map((e) => e.puuid);
+    const active = (pu: string) => riot(`https://${pf}.api.riotgames.com/lol/spectator/v5/active-games/by-summoner/${enc(pu)}`, key, 45000);
+    const stored = await fetch(`${SUPABASE_URL}/rest/v1/owen_live?platform=eq.${pf}&select=game_id,data`, { headers: svcH() }).then((r) => r.ok ? r.json() : []).catch(() => []);
+    const games = new Map<number, any>(), gone: number[] = [], busy = new Set<string>();
+    /* 보관 중인 게임이 아직 진행 중인지 참가자 한 명으로 확인 */
+    await Promise.all(stored.map(async (r: any) => {
+      const g = r.data, pu = (g.participants || []).find((p: any) => p.puuid)?.puuid;
+      const age = Date.now() - (g.gameStartTime || Date.now());
+      if (!pu || age > 70 * 60000) { gone.push(r.game_id); return; }
+      try { const ng = await active(pu); if (ng?.gameId === r.game_id) { games.set(ng.gameId, ng); (ng.participants || []).forEach((p: any) => busy.add(p.puuid)); } else gone.push(r.game_id); }
+      catch (e) { if ((e as { status?: number }).status === 404) gone.push(r.game_id); else { games.set(r.game_id, g); (g.participants || []).forEach((p: any) => busy.add(p.puuid)); } }
+    }));
+    /* 새 게임 찾기: 순서대로 24명씩 */
+    const st = (specCursor[pf] || 0) % Math.max(1, cand.length);
+    const batch = [...cand.slice(st), ...cand.slice(0, st)].filter((pu) => !busy.has(pu)).slice(0, 24);
+    specCursor[pf] = (st + 24) % Math.max(1, cand.length);
+    let i = 0;
+    await Promise.all(Array.from({ length: 4 }, async () => {
+      while (i < batch.length) {
+        const pu = batch[i++]; if (busy.has(pu)) continue;
+        try { const g = await active(pu); if (g?.gameId && g.gameMode !== 'TFT') { games.set(g.gameId, g); (g.participants || []).forEach((p: any) => busy.add(p.puuid)); } } catch { /* 게임 중 아님 */ }
+      }
+    }));
+    const feat = await riot(`https://${pf}.api.riotgames.com/lol/spectator/v5/featured-games`, key, 60000).catch(() => null);
+    for (const g of feat?.gameList || []) if (g.gameMode !== 'TFT' && g.gameId && !games.has(g.gameId)) games.set(g.gameId, g);
+    if (gone.length) await fetch(`${SUPABASE_URL}/rest/v1/owen_live?game_id=in.(${gone.join(',')})`, { method: 'DELETE', headers: svcH() }).catch(() => {});
+    if (games.size) await sbInsert('owen_live', [...games.values()].map((g) => ({ game_id: g.gameId, platform: pf, data: g, updated_at: new Date().toISOString() })), 'game_id', true);
+    const score = (g: any) => (g.participants || []).reduce((s: number, p: any) => s + (tierOf[p.puuid] ? (tierOf[p.puuid].tier === 'CHALLENGER' ? 3 : 2) + tierOf[p.puuid].lp / 2000 : 0), 0);
+    const out = { platform: pf, updated: Date.now(), games: [...games.values()].map((g) => ({ ...g, participants: (g.participants || []).map((p: any) => ({ ...p, tier: tierOf[p.puuid] || null })) })).sort((a, b) => score(b) - score(a)) };
+    cSet(ck, out, 60000);
+    return out;
   },
 
   async ranking(q, key) {
