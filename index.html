@@ -1461,7 +1461,7 @@ function specRow(g, pf, mine) {
     <div class="sg-mid"><b>${QUEUES[g.gameQueueConfigId] || g.gameMode || '게임'}</b><small>&lt; ${MAPS[g.mapId] || '맵'} &gt;</small><div class="sg-bans"><div class="b">${bans(100)}</div><div class="r">${bans(200)}</div></div><button class="btn primary" data-spec="${g.gameId}">관전하기</button><span class="sg-t" data-gt="${g.gameId}">${specElapsed(g)}</span></div>
     <div class="sg-team r">${T(200).map(p => pl(p)).join('')}</div></div>`;
 }
-function specTick() { clearInterval(SPEC.timer); SPEC.timer = setInterval(() => { if (!location.hash.startsWith('#/spectate')) return clearInterval(SPEC.timer); $('[data-gt]').forEach(el => { const g = SPEC.games.get(+el.dataset.gt); if (g) el.textContent = specElapsed(g); }); }, 1000); }
+function specTick() { clearInterval(SPEC.timer); SPEC.timer = setInterval(() => { if (!location.hash.startsWith('#/spectate')) return clearInterval(SPEC.timer); $$('[data-gt]').forEach(el => { const g = SPEC.games.get(+el.dataset.gt); if (g) el.textContent = specElapsed(g); }); }, 1000); }
 function drawSpecList(list, pf) {
   const el = $('#sp-list'); if (!el) return;
   list.forEach(g => SPEC.games.set(g.gameId, g));
@@ -1470,7 +1470,7 @@ function drawSpecList(list, pf) {
   el.innerHTML = list.length ? list.map(g => specRow(g, pf)).join('') : '<div class="card"><div class="empty big">지금 확인된 상위 랭커 게임이 없어요. 1분 뒤 다시 확인해 보세요.</div></div>';
   applySpecFilter(); specTick();
 }
-function applySpecFilter() { $('#sp-list .sg').forEach(r => r.hidden = !!SPEC.champ && !r.dataset.champs.split(',').includes(SPEC.champ)); }
+function applySpecFilter() { $$('#sp-list .sg').forEach(r => r.hidden = !!SPEC.champ && !r.dataset.champs.split(',').includes(SPEC.champ)); }
 async function demoGames() {
   const out = []; for (let i = 0; i < 40 && out.length < 6; i++) { try { const g = await Demo.live('kr', 'demo:spec' + i + '#KR1'); g.gameId = 9000000000 + i; g.observers = { encryptionKey: '' }; g.platformId = 'KR'; const r = (i * 7919) % 97; g.participants.forEach((p, j) => p.tier = (r + j) % 4 ? { tier: ['CHALLENGER', 'GRANDMASTER', 'MASTER'][(r + j) % 3], lp: 300 + ((r * 31 + j * 97) % 1500) } : null); out.push(g); } catch { } }
   return out;
