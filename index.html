@@ -563,7 +563,61 @@ footer{border-top:1px solid var(--line);padding:26px 20px;text-align:center;colo
 .sg-mid .btn{height:34px;padding:0 18px}
 .sg-t{font-size:12.5px;color:var(--sub);font-variant-numeric:tabular-nums}
 .sp-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:6px 0 12px;font-size:12.5px;color:var(--mute)}
+
+/* 명예의 전당 */
+.rk-grid{display:grid;grid-template-columns:380px 1fr;gap:16px;align-items:start}
+.hof{position:sticky;top:124px;display:flex;flex-direction:column;gap:12px}
+.hof-h{display:flex;align-items:center;gap:10px;padding:2px 2px 4px}
+.hof-h svg{width:28px;height:28px;color:#f0d28c;filter:drop-shadow(0 0 8px rgba(240,210,140,.5))}
+.hof-h b{font-size:20px;font-weight:900;letter-spacing:.5px;background:linear-gradient(120deg,#fff3c9,#f0d28c 45%,#b98a3e);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hof-h small{display:block;font-size:10.5px;color:#a88a4c;letter-spacing:3px;font-weight:800}
+.throne{position:relative;border-radius:20px;overflow:hidden;padding:2px;background:linear-gradient(135deg,#fff1b8,#c9973f 30%,#6b4a1c 55%,#f0d28c 80%,#fff1b8);background-size:300% 300%;animation:goldflow 6s linear infinite;box-shadow:0 18px 50px rgba(240,180,60,.18),0 0 0 1px rgba(240,210,140,.2)}
+@keyframes goldflow{0%{background-position:0% 50%}100%{background-position:300% 50%}}
+.throne-in{position:relative;border-radius:18px;overflow:hidden;background:#0b0f18;min-height:310px;display:flex;flex-direction:column;justify-content:flex-end;padding:20px}
+.throne-in .bg{position:absolute;inset:0;background:var(--sp) center 18%/cover;opacity:.6;transform:scale(1.04);transition:transform 6s}
+.throne:hover .throne-in .bg{transform:scale(1.12)}
+.throne-in:before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(8,11,18,.05) 0%,rgba(8,11,18,.5) 45%,#0b0f18 92%)}
+.throne-in:after{content:"";position:absolute;top:-40%;left:-60%;width:40%;height:180%;z-index:2;background:linear-gradient(100deg,transparent,rgba(255,240,200,.18),transparent);transform:rotate(12deg);animation:sweep 5s ease-in-out infinite}
+@keyframes sweep{0%,60%{left:-60%}100%{left:130%}}
+.throne-in>*{position:relative;z-index:3}
+.crown{position:absolute!important;top:16px;left:18px;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:900;letter-spacing:2px;color:#f6dc9a;text-shadow:0 2px 12px rgba(0,0,0,.7)}
+.crown svg{width:22px;height:22px;filter:drop-shadow(0 0 6px rgba(240,210,140,.8))}
+.rank-no{position:absolute!important;top:4px;right:18px;font-size:80px;font-weight:900;line-height:1;background:linear-gradient(180deg,#fff6d6,#e2b45a 60%,#8a5f22);-webkit-background-clip:text;background-clip:text;color:transparent;font-style:italic;filter:drop-shadow(0 4px 14px rgba(0,0,0,.6))}
+.t-ic{display:flex;align-items:center;gap:14px}
+.t-ic img{width:70px;height:70px;border-radius:18px;border:2px solid #f0d28c;box-shadow:0 0 22px rgba(240,210,140,.45);flex:none}
+.t-ic .nm{font-size:22px;font-weight:900;line-height:1.15;word-break:break-all}
+.t-ic .nm a:hover{color:#f6dc9a}
+.t-ic .tg{font-size:12px;color:var(--sub);margin-top:3px}
+.t-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
+.t-stats div{background:rgba(255,255,255,.05);border:1px solid rgba(240,210,140,.16);border-radius:12px;padding:9px 10px;font-size:11px;color:var(--sub);backdrop-filter:blur(4px)}
+.t-stats b{display:block;font-size:16px;color:#fff;font-weight:900}
+.podium{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pod{position:relative;border-radius:16px;overflow:hidden;padding:1.5px;background:linear-gradient(135deg,var(--c1),var(--c2))}
+.pod-in{position:relative;border-radius:15px;overflow:hidden;background:#0b0f18;padding:14px 12px 12px;min-height:160px;display:flex;flex-direction:column;justify-content:flex-end}
+.pod-in .bg{position:absolute;inset:0;background:var(--sp) center 18%/cover;opacity:.38}
+.pod-in:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent,#0b0f18 85%);z-index:1}
+.pod-in>*{position:relative;z-index:2}
+.pod .no{position:absolute;top:6px;right:10px;font-size:38px;font-weight:900;font-style:italic;background:linear-gradient(180deg,#fff,var(--c1));-webkit-background-clip:text;background-clip:text;color:transparent;z-index:2}
+.pod img.ic{width:44px;height:44px;border-radius:12px;border:2px solid var(--c1);margin-bottom:8px}
+.pod .nm{font-weight:900;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pod .s{font-size:11.5px;color:var(--sub);margin-top:2px}
+.pod .s b{color:var(--c1)}
+.rec{border-radius:16px;background:linear-gradient(180deg,rgba(240,210,140,.07),rgba(255,255,255,.02));border:1px solid rgba(240,210,140,.16);padding:6px}
+.rec-h{font-size:12px;font-weight:900;color:#d9bd7b;letter-spacing:1px;padding:8px 10px 6px}
+.rec-r{display:flex;align-items:center;gap:11px;padding:9px 10px;border-radius:11px;transition:background .15s}
+.rec-r:hover{background:rgba(255,255,255,.04)}
+.rec-r .ri{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;flex:none;background:radial-gradient(circle at 30% 30%,rgba(240,210,140,.35),rgba(240,210,140,.08));color:#f0d28c;box-shadow:inset 0 0 0 1px rgba(240,210,140,.25)}
+.rec-r .ri svg{width:18px;height:18px}
+.rec-r .rt{flex:1;min-width:0}
+.rec-r .rt small{display:block;font-size:11px;color:var(--mute);font-weight:700}
+.rec-r .rt a{font-weight:800;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.rec-r .rv{font-weight:900;font-size:14px;color:#f6dc9a;white-space:nowrap}
+.hot-list{display:flex;flex-wrap:wrap;gap:6px;padding:4px 10px 10px}
+.hot-list a{font-size:12px;font-weight:700;padding:5px 10px;border-radius:20px;background:rgba(239,69,97,.12);color:#ff8ea0;border:1px solid rgba(239,69,97,.25)}
+.hot-list a:hover{background:rgba(239,69,97,.22)}
+.hof .sk{border-radius:18px}
 @media (max-width:980px){
+  .rk-grid{grid-template-columns:1fr}.hof{position:static}
   .sg{grid-template-columns:1fr}.sg-mid{border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);order:0}.sg-team.r .spr{flex-direction:row}.sg-team.r .spr .nm{text-align:right}
   .cgrid{grid-template-columns:1fr}.ms-grid{grid-template-columns:repeat(2,1fr)}.ct .hide-m{display:none}
   .form-row{grid-template-columns:1fr 1fr}.form-row>.ftags{grid-column:1/-1}
@@ -1397,13 +1451,15 @@ async function renderRanking(pf) {
     <div class="rk-ctrl"><select class="sel" id="rk-pf">${PLATFORMS.map(p => `<option value="${p[0]}"${p[0] === pf ? ' selected' : ''}>${p[1]} ${p[2]}</option>`).join('')}</select>
     <div class="seg">${[['solo', '솔로랭크'], ['flex', '자유랭크']].map(([k, l]) => `<button data-rq="${k}" class="${RK.queue === k ? 'on' : ''}">${l}</button>`).join('')}</div>
     <div class="seg">${[['challenger', '챌린저'], ['grandmaster', '그랜드마스터'], ['master', '마스터']].map(([k, l]) => `<button data-rt="${k}" class="${RK.tier === k ? 'on' : ''}">${l}</button>`).join('')}</div></div></div>
-    <div class="card" id="rk-body"><div class="center"><div class="spin"></div></div></div></div>`;
+    <div class="rk-grid"><aside class="hof" id="hof"><div class="hof-h">${HOF_ICON.laurel}<div><small>HALL OF FAME</small><b>명예의 전당</b></div></div><div class="sk" style="height:310px"></div><div class="sk" style="height:160px"></div><div class="sk" style="height:260px"></div></aside>
+    <div class="card" id="rk-body"><div class="center"><div class="spin"></div></div></div></div></div>`;
   try {
     const d = await src().ranking(pf, RK.queue, RK.tier);
     if (RK.tok !== tok) return;
     const c = tierColor(d.tier);
     const rows = d.entries.slice(0, 100);
     $('#rk-body').innerHTML = rows.length ? `<table class="rk"><thead><tr><th>순위</th><th>소환사</th><th>티어</th><th>LP</th><th>승률</th></tr></thead><tbody>${rows.map((e, i) => { const g = e.wins + e.losses, wr = pct(e.wins, g); return `<tr><td class="no">${i + 1}</td><td class="who" data-pu="${esc(e.puuid)}"><span class="mute">불러오는 중...</span></td><td style="color:${c};font-weight:800">${TIERS[d.tier]?.[0] || d.tier}</td><td class="lp">${num(e.leaguePoints)} LP</td><td><div class="wrbar"><div class="track"><i class="w" style="width:${wr}%">${e.wins}W</i><i class="l">${e.losses}L</i></div><b class="${wr >= 60 ? 'wr-hi' : ''}">${wr}%</b></div></td></tr>`; }).join('')}</tbody></table>` : '<div class="empty big">랭킹 데이터가 없습니다.</div>';
+    renderHOF(d, pf, tok);
     const cells = $$('#rk-body .who');
     await pool(cells, async cell => {
       if (RK.tok !== tok) return;
@@ -1412,6 +1468,48 @@ async function renderRanking(pf) {
       cell.innerHTML = `<a href="${sumLink(pf, a.gameName, a.tagLine)}">${esc(a.gameName)}</a><span class="tg">#${esc(a.tagLine)}</span>`;
     }, isDemo ? 10 : 3);
   } catch (e) { if (RK.tok === tok) $('#rk-body').innerHTML = `<div class="empty big">${esc(e.message)}${!isDemo ? '' : ''}</div>`; }
+}
+
+/* ---- 명예의 전당 (랭킹 왼쪽) ---- */
+const HOF_ICON = {
+  laurel: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 21v-4M7 4C4 7 4 12 7 15c2 2 4 2 5 2s3 0 5-2c3-3 3-8 0-11"/><path d="M5 7c1 0 2 1 2 2M4 11c1 0 2.5.5 3 2M19 7c-1 0-2 1-2 2M20 11c-1 0-2.5.5-3 2"/><path d="m12 5 1.2 2.4 2.6.4-1.9 1.8.5 2.6L12 11l-2.4 1.2.5-2.6-1.9-1.8 2.6-.4z" fill="currentColor"/></svg>',
+  crown: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 7l4.5 4L12 4l4.5 7L21 7l-2 12H5z"/></svg>',
+  trophy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>',
+  sword: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14.5 17.5 3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2"/></svg>',
+  fire: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 1.5-5 3-6 0 2 1 3.5 2.5 4C11 9 10 6 12 2z"/></svg>',
+  iron: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 4h12l-2 7H8zM8 11v9h8v-9M10 15h4"/></svg>',
+  star: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>',
+};
+async function hofWho(pf, pu) { let a = nameCache[pu]; if (!a) { a = await src().account(pf, pu); nameCache[pu] = a; } return a; }
+async function renderHOF(d, pf, tok) {
+  const el = () => RK.tok === tok ? $('#hof') : null;
+  const E = (d.entries || []).map(e => ({ ...e, g: e.wins + e.losses, wr: e.wins / Math.max(1, e.wins + e.losses) * 100 }));
+  if (!E.length) { el() && (el().innerHTML += '<div class="empty">랭킹 데이터가 없어요.</div>'); return; }
+  const top3 = E.slice(0, 3), minG = E.filter(e => e.g >= 150).length >= 5 ? 150 : 50;
+  const best = (f, ok = () => true) => E.filter(ok).sort((a, b) => f(b) - f(a))[0];
+  const recs = [
+    ['trophy', '최고 승률', best(e => e.wr, e => e.g >= minG), e => e.wr.toFixed(1) + '%', minG + '판 이상'],
+    ['sword', '최다 승리', best(e => e.wins), e => num(e.wins) + '승', ''],
+    ['iron', '철인 · 최다 판수', best(e => e.g), e => num(e.g) + '판', ''],
+    ['star', '무서운 신예', best(e => e.leaguePoints, e => e.freshBlood), e => num(e.leaguePoints) + ' LP', '이번 티어 신규 진입'],
+  ].filter(r => r[2]);
+  const hot = E.filter(e => e.hotStreak).slice(0, 8);
+  const tierName = TIERS[d.tier]?.[0] || d.tier;
+  const who = {};
+  await Promise.all([...new Set([...top3, ...recs.map(r => r[2]), ...hot].map(e => e.puuid))].map(async pu => { try { who[pu] = { a: await hofWho(pf, pu) }; } catch { } }));
+  await Promise.all(top3.map(async e => { const w = who[e.puuid]; if (!w) return; try { const p = await src().profile(pf, w.a.gameName, w.a.tagLine); w.icon = p.summoner?.profileIconId; const m = p.mastery?.[0]; const c = m && champ(m.championId); w.sp = c ? `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${c.id}_0.jpg` : ''; w.main = c ? c.name : ''; } catch { } }));
+  if (!el()) return;
+  const link = e => { const w = who[e.puuid]; return w ? `<a href="${sumLink(pf, w.a.gameName, w.a.tagLine)}">${esc(w.a.gameName)}</a>` : '<span class="mute">소환사</span>'; };
+  const icon = e => `${CDN()}/img/profileicon/${who[e.puuid]?.icon || 29}.png`;
+  const sp = e => who[e.puuid]?.sp || (DD.champList.length ? `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${DD.champList[(e.leaguePoints * 7) % DD.champList.length].id}_0.jpg` : '');
+  const k = top3[0], fb = `this.src='${CDN()}/img/profileicon/29.png'`;
+  const throne = `<div class="throne"><div class="throne-in"><div class="bg" style="--sp:url('${sp(k)}')"></div><div class="crown">${HOF_ICON.crown}${esc(tierName)} 1위</div><div class="rank-no">1</div>
+    <div class="t-ic"><img src="${icon(k)}" onerror="${fb}" alt=""><div style="min-width:0"><div class="nm">${link(k)}</div><div class="tg">${who[k.puuid] ? '#' + esc(who[k.puuid].a.tagLine) : ''}${who[k.puuid]?.main ? ' · 주력 ' + esc(who[k.puuid].main) : ''}</div></div></div>
+    <div class="t-stats"><div><b>${num(k.leaguePoints)}</b>LP</div><div><b>${k.wr.toFixed(1)}%</b>승률</div><div><b>${num(k.wins)}승</b>${num(k.g)}판</div></div></div></div>`;
+  const pod = (e, i) => e ? `<div class="pod" style="--c1:${i === 1 ? '#dfe7f2' : '#e0a06b'};--c2:${i === 1 ? '#6f7d91' : '#7a4a26'}"><div class="pod-in"><div class="bg" style="--sp:url('${sp(e)}')"></div><div class="no">${i + 1}</div><img class="ic" src="${icon(e)}" onerror="${fb}" alt=""><div class="nm">${link(e)}</div><div class="s"><b>${num(e.leaguePoints)} LP</b> · 승률 ${e.wr.toFixed(0)}%</div></div></div>` : '';
+  const recHTML = `<div class="rec"><div class="rec-h">명예의 기록</div>${recs.map(([ic, t, e, v, sub]) => `<div class="rec-r"><div class="ri">${HOF_ICON[ic]}</div><div class="rt"><small>${t}${sub ? ' · ' + sub : ''}</small>${link(e)}</div><div class="rv">${v(e)}</div></div>`).join('')}
+    ${hot.length ? `<div class="rec-h" style="color:#ff8ea0;display:flex;align-items:center;gap:6px"><span style="width:14px;height:14px;display:inline-flex">${HOF_ICON.fire}</span>연승 행진 중</div><div class="hot-list">${hot.map(e => { const w = who[e.puuid]; return w ? `<a href="${sumLink(pf, w.a.gameName, w.a.tagLine)}">${esc(w.a.gameName)}</a>` : ''; }).join('')}</div>` : ''}</div>`;
+  el().innerHTML = `<div class="hof-h">${HOF_ICON.laurel}<div><small>HALL OF FAME</small><b>명예의 전당</b></div></div>${throne}<div class="podium">${pod(top3[1], 1)}${pod(top3[2], 2)}</div>${recHTML}`;
 }
 
 /* ---- error ---- */
