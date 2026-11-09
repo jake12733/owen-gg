@@ -110,24 +110,71 @@ async function sbInsert(table: string, rows: unknown[], conflict: string, merge 
   if (!rows.length || !SVC) return;
   await fetch(`${SUPABASE_URL}/rest/v1/${table}?on_conflict=${conflict}`, { method: "POST", headers: { ...svcH(), Prefer: `resolution=${merge ? "merge" : "ignore"}-duplicates,return=minimal` }, body: JSON.stringify(rows) }).catch(() => {});
 }
-async function collectMatch(pf: string, m: any) {
+function runesOf(p: any) {
+  const s = p.perks?.styles || [], a = s[0], b = s[1], st = p.perks?.statPerks || {};
+  if (!a) return null;
+  const pa = (a.selections || []).map((x: any) => x.perk), pb = (b?.selections || []).map((x: any) => x.perk);
+  return [a.style, pa[0] ?? 0, pa[1] ?? 0, pa[2] ?? 0, pa[3] ?? 0, b?.style ?? 0, pb[0] ?? 0, pb[1] ?? 0, st.offense ?? 0, st.flex ?? 0, st.defense ?? 0];
+}
+/* 타임라인 → 참가자별 스킬 순서 / 시작 아이템 / 구매 순서 */
+const CONS = new Set([2003, 2010, 2031, 2033, 2055, 2138, 2139, 2140, 3340, 3363, 3364, 2052, 2422, 3330]);
+function timelineOf(tl: any) {
+  const out: Record<number, { skills: string; starter: number[]; buys: number[] }> = {};
+  for (let i = 1; i <= 10; i++) out[i] = { skills: "", starter: [], buys: [] };
+  for (const f of tl?.info?.frames || []) for (const e of f.events || []) {
+    const o = out[e.participantId]; if (!o) continue;
+    if (e.type === "SKILL_LEVEL_UP" && e.levelUpType === "NORMAL" && e.skillSlot >= 1 && e.skillSlot <= 4) { if (o.skills.length < 18) o.skills += "QWER"[e.skillSlot - 1]; }
+    else if (e.type === "ITEM_PURCHASED") { if (e.timestamp < 60000) o.starter.push(e.itemId); if (!CONS.has(e.itemId)) o.buys.push(e.itemId); }
+    else if (e.type === "ITEM_UNDO" && e.beforeId) { let k = o.buys.lastIndexOf(e.beforeId); if (k >= 0) o.buys.splice(k, 1); k = o.starter.lastIndexOf(e.beforeId); if (k >= 0 && e.timestamp < 75000) o.starter.splice(k, 1); }
+  }
+  for (const o of Object.values(out)) { o.buys = o.buys.slice(0, 40); o.starter = o.starter.slice(0, 6); }
+  return out;
+}
+async function collectMatch(pf: string, m: any, tl?: any) {
   const id = m?.metadata?.matchId, info = m?.info;
-  if (!id || !info || collected.has(id)) return;
-  collected.add(id); if (collected.size > 20000) collected.clear();
+  if (!id || !info) return;
   const dur = info.gameEndTimestamp ? info.gameDuration : info.gameDuration / 1000;
   if (!SR_Q.has(info.queueId) || dur < 300 || !Array.isArray(info.participants)) return;
   const patch = String(info.gameVersion || "").split(".").slice(0, 2).join(".");
   const end = new Date(info.gameEndTimestamp || (info.gameStartTimestamp || info.gameCreation) + dur * 1000).toISOString();
-  await sbInsert("owen_matches", [{ match_id: id, platform: pf, queue_id: info.queueId, patch, game_end: end, duration: Math.round(dur) }], "match_id");
-  await sbInsert("owen_champ_games", info.participants.filter((p: any) => p.puuid).map((p: any) => ({
-    match_id: id, puuid: p.puuid, champion_id: p.championId, position: p.teamPosition || "", win: !!p.win,
-    kills: p.kills, deaths: p.deaths, assists: p.assists, cs: (p.totalMinionsKilled || 0) + (p.neutralMinionsKilled || 0),
-    damage: p.totalDamageDealtToChampions || 0, gold: p.goldEarned || 0, items: [p.item0, p.item1, p.item2, p.item3, p.item4, p.item5].map((x: number) => x || 0),
-    keystone: p.perks?.styles?.[0]?.selections?.[0]?.perk ?? null, spells: [p.summoner1Id, p.summoner2Id], queue_id: info.queueId, patch, game_end: end,
-    platform: pf, riot_name: p.riotIdGameName || null, riot_tag: p.riotIdTagline || null,
-  })), "match_id,puuid");
+  const T = tl ? timelineOf(tl) : null;
+  await sbInsert("owen_matches", [{ match_id: id, platform: pf, queue_id: info.queueId, patch, game_end: end, duration: Math.round(dur), enriched: !!T }], "match_id", true);
+  await sbInsert("owen_champ_games", info.participants.filter((p: any) => p.puuid).map((p: any, i: number) => {
+    const row: Record<string, unknown> = {
+      match_id: id, puuid: p.puuid, champion_id: p.championId, position: p.teamPosition || "", win: !!p.win,
+      kills: p.kills, deaths: p.deaths, assists: p.assists, cs: (p.totalMinionsKilled || 0) + (p.neutralMinionsKilled || 0),
+      damage: p.totalDamageDealtToChampions || 0, gold: p.goldEarned || 0, items: [p.item0, p.item1, p.item2, p.item3, p.item4, p.item5].map((x: number) => x || 0),
+      keystone: p.perks?.styles?.[0]?.selections?.[0]?.perk ?? null, spells: [p.summoner1Id, p.summoner2Id], queue_id: info.queueId, patch, game_end: end,
+      platform: pf, riot_name: p.riotIdGameName || null, riot_tag: p.riotIdTagline || null, runes: runesOf(p),
+    };
+    if (T) { const t = T[p.participantId || i + 1]; row.skills = t?.skills || null; row.starter = t?.starter || null; row.buys = t?.buys || null; }
+    return row;
+  }), "match_id,puuid", true);
   const bans: unknown[] = []; for (const t of info.teams || []) for (const b of t.bans || []) if (b.championId > 0) bans.push({ match_id: id, team_id: t.teamId, champion_id: b.championId });
   await sbInsert("owen_bans", bans, "match_id,team_id,champion_id");
+  if (!T) await sbInsert("owen_enrich_queue", [{ match_id: id, platform: pf }], "match_id");
+}
+/* 보강 작업: 대기열의 매치를 타임라인과 함께 다시 수집 (1분마다 pg_cron) */
+async function enrich(key: string, n = 4) {
+  const q = await fetch(`${SUPABASE_URL}/rest/v1/owen_enrich_queue?select=match_id,platform,tries&order=added_at.desc&limit=${n}`, { headers: svcH() }).then((r) => r.ok ? r.json() : []).catch(() => []);
+  let done = 0, fail = 0;
+  for (const it of q) {
+    const pf = REGION[it.platform] ? it.platform : 'kr', base = `https://${REGION[pf]}.api.riotgames.com/lol/match/v5/matches/${it.match_id}`;
+    try {
+      const m = await riot(base, key, Infinity);
+      const tl = await riot(base + "/timeline", key, 0, true);
+      await collectMatch(pf, m, tl);
+      await fetch(`${SUPABASE_URL}/rest/v1/owen_enrich_queue?match_id=eq.${it.match_id}`, { method: "DELETE", headers: svcH() });
+      done++;
+    } catch (e) {
+      fail++;
+      const st = (e as { status?: number }).status;
+      if (st === 404 || st === 400 || (it.tries || 0) >= 3) await fetch(`${SUPABASE_URL}/rest/v1/owen_enrich_queue?match_id=eq.${it.match_id}`, { method: "DELETE", headers: svcH() });
+      else await fetch(`${SUPABASE_URL}/rest/v1/owen_enrich_queue?match_id=eq.${it.match_id}`, { method: "PATCH", headers: { ...svcH(), Prefer: "return=minimal" }, body: JSON.stringify({ tries: (it.tries || 0) + 1 }) });
+      if (st === 429) break;
+    }
+  }
+  return { done, fail, picked: q.length };
 }
 async function collectMastery(pf: string, d: any) {
   const acc = d?.account; if (!acc?.puuid || !Array.isArray(d.mastery)) return;
@@ -172,7 +219,11 @@ async function scanLive(pf: string, key: string, n = 18, rechecks = 5) {
       try { const g = await active(pu); if (g?.gameId && g.gameMode !== 'TFT' && !rows.some((r: any) => r.game_id === g.gameId)) { up.push(g); found++; (g.participants || []).forEach((p: any) => busy.add(p.puuid)); } } catch { /* 게임 중 아님 */ }
     }
   }));
-  if (gone.length) await fetch(`${SUPABASE_URL}/rest/v1/owen_live?game_id=in.(${gone.join(',')})`, { method: 'DELETE', headers: svcH() }).catch(() => {});
+  if (gone.length) {
+    const ended = rows.filter((r: any) => gone.includes(r.game_id) && [400, 420, 430, 440, 490].includes(r.data?.gameQueueConfigId)).map((r: any) => ({ match_id: `${String(r.data.platformId || pf).toUpperCase()}_${r.game_id}`, platform: pf }));
+    if (ended.length) await sbInsert('owen_enrich_queue', ended, 'match_id');
+    await fetch(`${SUPABASE_URL}/rest/v1/owen_live?game_id=in.(${gone.join(',')})`, { method: 'DELETE', headers: svcH() }).catch(() => {});
+  }
   if (up.length) await sbInsert('owen_live', up.map((g) => ({ game_id: g.gameId, platform: pf, data: g, updated_at: new Date().toISOString() })), 'game_id', true);
   return { found, removed: gone.length, total: rows.length - gone.length + found, checked: batch.length };
 }
@@ -297,6 +348,10 @@ Deno.serve(async (req) => {
       await saveKey(k, appliedAt); vc = { key: k, v: true, at: Date.now() }; cache.clear();
       return json(200, { ok: true, appliedAt, expiresAt: appliedAt + 86400000, keyTail: k.slice(-4) });
     }
+    if (name === "enrich") {
+      if (!SCAN_TOKEN || req.headers.get("x-scan-token") !== SCAN_TOKEN) return json(401, { error: "unauthorized" });
+      return json(200, await enrich((await loadKey()).key, Math.min(20, Math.max(1, parseInt(u.searchParams.get("n") || "4")))));
+    }
     if (name === "scan") {
       if (!SCAN_TOKEN || req.headers.get("x-scan-token") !== SCAN_TOKEN) return json(401, { error: "unauthorized" });
       const pf = plat(u.searchParams.get("platform") || "kr");
@@ -307,7 +362,7 @@ Deno.serve(async (req) => {
     if (!fn) return json(404, { error: "없는 API입니다." });
     const key = (req.headers.get("x-riot-key") || "").trim() || (await loadKey()).key;
     const out = await fn(Object.fromEntries(u.searchParams), key);
-    if (name === "match") bg(collectMatch(plat(u.searchParams.get("platform") || "kr"), out));
+    if (name === "match") { const mid = (out as any)?.metadata?.matchId; if (mid && !collected.has(mid)) { collected.add(mid); if (collected.size > 20000) collected.clear(); bg(collectMatch(plat(u.searchParams.get("platform") || "kr"), out)); } }
     else if (name === "profile") bg(collectMastery((out as any).platform || plat(u.searchParams.get("platform") || "kr"), out));
     /* 끝난 매치는 바뀌지 않으므로 브라우저에 오래 캐시, 랭킹/로테이션은 짧게 */
     const cc = name === "match" || name === "account" ? "public, max-age=2592000, immutable" : name === "ranking" || name === "rotation" ? "public, max-age=120" : "no-store";
