@@ -382,15 +382,15 @@ footer{border-top:1px solid var(--line);padding:26px 20px;text-align:center;colo
 .tcol{display:flex;flex-direction:column;gap:2px;padding:10px 12px 14px}
 .tcol .tr{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 4px;border-radius:8px}
 .tcol .tr:hover{background:rgba(255,255,255,.03)}
-.tcol .tr span{font-size:12px;color:var(--sub);font-weight:700}
+.tcol .tr .tn{font-size:12px;color:var(--sub);font-weight:700;font-style:normal}
 .tcol .tsum{display:flex;gap:6px;padding:0 4px 8px;font-size:11.5px;color:var(--mute)}
 .tcol .tsum b{color:var(--text)}
 /* recent form */
 .form-row{display:grid;grid-template-columns:1.1fr 1.3fr 1fr;gap:6px;padding:16px 18px 18px;border-top:1px solid var(--line)}
 .streak{font-size:15px;font-weight:900;margin-bottom:10px}
 .streak.w{color:#5b93ff}.streak.l{color:#ff6b84}.streak.n{color:var(--sub)}
-.wl-strip{display:flex;gap:3px;flex-wrap:wrap}
-.wl-strip i{width:14px;height:14px;border-radius:4px;font-style:normal;font-size:9px;font-weight:800;display:grid;place-items:center;color:#fff}
+.wl-strip{display:grid;grid-template-columns:repeat(10,16px);gap:3px}
+.wl-strip i{width:16px;height:16px;border-radius:4px;font-style:normal;font-size:9px;font-weight:800;display:grid;place-items:center;color:#fff}
 .wl-strip i.w{background:var(--win)}.wl-strip i.l{background:var(--lose)}
 .spark{width:100%;height:74px;display:block}
 .spark-lg{display:flex;gap:12px;font-size:11px;color:var(--mute);margin-top:4px}
@@ -944,7 +944,9 @@ function titlesOf(p, ps, dur, arena, q, tkey) {
     spree: p.largestKillingSpree || 0, tw: p.turretKills || 0, obj: (p.dragonKills || 0) + (p.baronKills || 0), csm: (p.totalMinionsKilled + p.neutralMinionsKilled) / min, vpm: (p.visionScore || 0) / min,
     heal: (p.totalHealsOnTeammates || 0) + (p.totalDamageShieldedOnTeammates || 0), aram: q === 450, arena,
     topDmg: top(x => x.totalDamageDealtToChampions), topVis: top(x => x.visionScore || 0), topTaken: top(x => x.totalDamageTaken), topGold: top(x => x.goldEarned) };
-  return TITLES.filter(t => { try { return t[4](c); } catch { return false; } }).map(t => t[0]);
+  /* 잘한 판에만: OP 스코어 6 이상이거나 게임 내 3위 이내, MVP/ACE (전설 칭호는 예외 없이 인정) */
+  const good = p._s >= 6 || p._r <= 3 || !!p._b;
+  return TITLES.filter(t => { try { return (good || t[1] === 'leg') && t[4](c); } catch { return false; } }).map(t => t[0]);
 }
 function titleChip(id, sm) { const t = TBY[id]; if (!t) return ''; return `<span class="ttl ${t[1]}${sm ? ' sm' : ''}" data-tt="${TROLE[t[1]]} 칭호 · ${t[2]}" data-tb="${t[3]}">${t[1] === 'leg' ? ICON.crown : t[1] === 'epic' ? ICON.flame : ICON.gem}${t[2]}</span>`; }
 function titlesRow(ids) {
@@ -957,7 +959,7 @@ function renderTitles(valid) {
   const el = $('#side-titles'); if (!el) return;
   const tc = titleCount(valid), games = valid.filter(a => (a.me._t || []).length).length;
   const cnt = r => tc.filter(([id]) => TBY[id][1] === r).reduce((s, x) => s + x[1], 0);
-  el.innerHTML = `<div class="card-h">칭호 컬렉션 <span class="sub">최근 ${valid.length}게임</span></div>` + (tc.length ? `<div class="tcol"><div class="tsum">칭호 획득 <b>${games}</b>게임 · 전설 <b>${cnt('leg')}</b> · 영웅 <b>${cnt('epic')}</b> · 희귀 <b>${cnt('rare')}</b></div>${tc.map(([id, n]) => `<div class="tr">${titleChip(id)}<span>×${n}</span></div>`).join('')}</div>` : '<div class="empty">아직 획득한 칭호가 없어요.<br>잘한 판에서 칭호를 얻을 수 있어요.</div>');
+  el.innerHTML = `<div class="card-h">칭호 컬렉션 <span class="sub">최근 ${valid.length}게임</span></div>` + (tc.length ? `<div class="tcol"><div class="tsum">칭호 획득 <b>${games}</b>게임 · 전설 <b>${cnt('leg')}</b> · 영웅 <b>${cnt('epic')}</b> · 희귀 <b>${cnt('rare')}</b></div>${tc.map(([id, n]) => `<div class="tr">${titleChip(id)}<em class="tn">×${n}</em></div>`).join('')}</div>` : '<div class="empty">아직 획득한 칭호가 없어요.<br>잘한 판에서 칭호를 얻을 수 있어요.</div>');
   const pt = $('#p-title');
   if (pt) { if (tc.length) { pt.innerHTML = '대표 칭호 ' + titleChip(tc[0][0]); pt.hidden = false; } else pt.hidden = true; }
 }
@@ -980,7 +982,12 @@ function styleTags(valid) {
   const n = valid.length, sr = valid.filter(a => !a.arena && a.q !== 450), m = sr.length || 1, tags = [];
   const avg = (arr, f) => arr.reduce((s, a) => s + f(a), 0) / Math.max(1, arr.length);
   const share = avg(valid, a => { const mate = a.ps.filter(p => (a.arena ? p.playerSubteamId === a.me.playerSubteamId : p.teamId === a.me.teamId)); return a.me.totalDamageDealtToChampions / Math.max(1, mate.reduce((s, p) => s + p.totalDamageDealtToChampions, 0)); });
+  const pc = {}; for (const a of sr) if (a.me.teamPosition) pc[a.me.teamPosition] = (pc[a.me.teamPosition] || 0) + 1;
+  const mp = Object.entries(pc).sort((x, y) => y[1] - x[1])[0]; if (mp && mp[1] / m >= .4) tags.push({ TOP: '탑', JUNGLE: '정글', MIDDLE: '미드', BOTTOM: '원딜', UTILITY: '서폿' }[mp[0]] + ' 주력');
   if (share >= .27) tags.push('캐리형 딜러');
+  const ak = avg(valid, a => a.me.kills), ad = avg(valid, a => a.me.deaths), aa = avg(valid, a => a.me.assists);
+  if (ak >= 7) tags.push('공격형'); else if (aa >= 9 && ak < 5) tags.push('서포팅형');
+  if (ad > 0 && (ak + aa) / ad >= 3.5) tags.push('안정형');
   if (avg(valid, a => a.kp) >= 60) tags.push('한타 지향');
   if (avg(valid, a => a.me.deaths) <= 3.8) tags.push('생존왕');
   if (sr.length && avg(sr, a => a.me.visionScore / (a.dur / 60)) >= 1.4) tags.push('시야 장인');
@@ -989,7 +996,7 @@ function styleTags(valid) {
   const gc = groupChamps(valid); if (gc[0] && gc[0].n / n >= .45 && n >= 5) tags.push(champName(gc[0].id) + ' 장인'); else if (gc.length >= Math.max(6, n * .6)) tags.push('넓은 챔프폭');
   if (pct(valid.filter(a => a.me.win).length, n) >= 60 && n >= 5) tags.push('승리 보증수표');
   if (valid.filter(a => (a.me._t || []).some(id => TBY[id][1] === 'leg')).length >= 2) tags.push('전설 제조기');
-  return tags.slice(0, 5);
+  return tags.slice(0, 6);
 }
 function applyCF() {
   const bar = $('#cf-bar'); if (!bar) return;
